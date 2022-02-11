@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AdSec_IO</name>
+    </assembly>
+    <members>
+        <member name="T:Oasys.AdSec.IO.Graphics.Section.SectionImageBuilder">
+            <summary>
+            Class that builds a section's image.
+            </summary>
+        </member>
+        <member name="M:Oasys.AdSec.IO.Graphics.Section.SectionImageBuilder.Svg">
+             <summary>
+             Svg for section.
+             </summary>
+             <remarks>
+             Section must be flattened i.e. section and its subcomponent's profile must be a Oasys.Profiles.IPerimeterProfile 
+             and its reinforcement groups must be of Oasys.AdSec.Reinforcement.Groups.ISingleBars type before getting section
+             svg. See Oasys.AdSec.IAdSec.Flatten(ISection).
+             </remarks>
+             <exception cref="T:System.InvalidOperationException">
+             When section is not a flattened section.
+             </exception>
+             <example>
+             # [C#](#tab/tabid-1)
+             <code source="../../../../AdSec_API_Samples/DocumentationOnly/.NET/DotNetCodeSnippets/SaveSectionSvg.cs" region="Usings" lang="csharp"/>
+             <code source="../../../../AdSec_API_Samples/DocumentationOnly/.NET/DotNetCodeSnippets/SaveSectionSvg.cs" region="Snippet" lang="csharp"/>
+             <code lang="csharp">
+             //To save into PNG, third party nuget package like 'Svg' could be used. See https://www.nuget.org/packages/Svg
+             using Svg;
+             SvgDocument.FromSvg&lt;SvgDocument>(svg).Draw().Save("image.png");
+             </code>
+             <para>Example for saving a section image as svg and png file.</para>
+             # [Python](#tab/tabid-2)
+             <code source="../../../../AdSec_API_Samples/DocumentationOnly/Python/PythonCodeSnippets/SaveSectionSvg.py" region="Imports" lang="python"/>
+             <code source="../../../../AdSec_API_Samples/DocumentationOnly/Python/PythonCodeSnippets/SaveSectionSvg.py" region="Snippet" lang="python"/>
+             <code lang="python">
+             # To save into PNG, third party python package like 'svglib' could be used. See https://pypi.org/project/svglib
+             # additional imports
+             from svglib.svglib import svg2rlg
+             from reportlab.graphics import renderPM
+             
+             # Convert the svg to image and save it to a png file
+             drawing = svg2rlg("image.svg")
+             renderPM.drawToFile(drawing, "image.png", fmt="PNG")
+             </code>
+             <para>Example for saving a section image as svg and png file.</para>
+            ***
+             </example>
+        </member>
+    </members>
+</doc>
