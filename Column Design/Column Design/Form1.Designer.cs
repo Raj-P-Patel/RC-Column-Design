@@ -29,13 +29,12 @@ namespace Column_Design
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.designInput = new System.Windows.Forms.TextBox();
             this.extractInput = new System.Windows.Forms.Button();
             this.columnsToDesign = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.storyName = new System.Windows.Forms.ComboBox();
             this.maxEtabsRebarPt = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.rebarCover = new System.Windows.Forms.TextBox();
@@ -85,7 +84,9 @@ namespace Column_Design
             this.givenBottomFy = new System.Windows.Forms.ComboBox();
             this.givenLeftFy = new System.Windows.Forms.ComboBox();
             this.ResultsTable = new System.Windows.Forms.DataGridView();
+            this.ColumnLabel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.StoryValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StoryElevation = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.LocationValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.fckValueFromTable = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.depthValueFromTable = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -97,9 +98,10 @@ namespace Column_Design
             this.MMinorValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.LoadUtilValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MomentRatioValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.AdSecRebarDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.AdSecRebar = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ETABSRebarValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AdSecRebar = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TensileRebar = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AdSecRebarDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.vAlongYValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.vAlongXValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.asvProvidedAlongYValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -132,16 +134,22 @@ namespace Column_Design
             this.label37 = new System.Windows.Forms.Label();
             this.AshProvided = new System.Windows.Forms.TextBox();
             this.label38 = new System.Windows.Forms.Label();
-            this.storiesToDesign = new System.Windows.Forms.ComboBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
             this.linkBox = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.IncreaseTauC = new System.Windows.Forms.CheckBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.IsGravityColumn = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.UtilisationLimit = new System.Windows.Forms.TextBox();
+            this.OverrideMinorEcc = new System.Windows.Forms.CheckBox();
+            this.OverrideMajorEcc = new System.Windows.Forms.CheckBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.minEccMinor = new System.Windows.Forms.TextBox();
             this.minEccMajor = new System.Windows.Forms.TextBox();
-            this.minEccOverride = new System.Windows.Forms.CheckedListBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.rightSpacing = new System.Windows.Forms.TextBox();
             this.label34 = new System.Windows.Forms.Label();
@@ -152,24 +160,38 @@ namespace Column_Design
             this.leftDia = new System.Windows.Forms.TextBox();
             this.label31 = new System.Windows.Forms.Label();
             this.columnsToShow = new System.Windows.Forms.CheckedListBox();
-            this.button3 = new System.Windows.Forms.Button();
             this.ColumnGroupName = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.modelPath = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.ExtractETABSTables = new System.Windows.Forms.Button();
+            this.UniformRebar = new System.Windows.Forms.CheckBox();
+            this.Include16mmBar = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.Include32mmBar = new System.Windows.Forms.CheckBox();
+            this.Include25mmBar = new System.Windows.Forms.CheckBox();
+            this.Include20mmBar = new System.Windows.Forms.CheckBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.BrowseInputFIle = new System.Windows.Forms.Button();
+            this.DesignStories = new System.Windows.Forms.CheckedListBox();
+            this.UpdateDesignRows = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.ClearDesignTable = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsTable)).BeginInit();
             this.linkBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(25, 98);
+            this.label1.Location = new System.Drawing.Point(25, 23);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(115, 24);
             this.label1.TabIndex = 0;
@@ -177,20 +199,25 @@ namespace Column_Design
             // 
             // designInput
             // 
+            this.designInput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.designInput.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.designInput.Location = new System.Drawing.Point(229, 95);
+            this.designInput.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.designInput.Location = new System.Drawing.Point(208, 25);
             this.designInput.Name = "designInput";
-            this.designInput.Size = new System.Drawing.Size(1132, 32);
+            this.designInput.Size = new System.Drawing.Size(1345, 32);
             this.designInput.TabIndex = 1;
-            this.designInput.Text = "C:\\Users\\Raj-P.Patel\\OneDrive - Arup\\Structures\\3DT column design\\Column Design.x" +
-    "lsm";
+            this.designInput.Text = "Enter Input File Path...";
+            this.designInput.Enter += new System.EventHandler(this.designInput_Enter);
+            this.designInput.Leave += new System.EventHandler(this.designInput_Leave);
             // 
             // extractInput
             // 
+            this.extractInput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.extractInput.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.extractInput.Location = new System.Drawing.Point(1435, 135);
+            this.extractInput.Location = new System.Drawing.Point(1744, 23);
             this.extractInput.Name = "extractInput";
-            this.extractInput.Size = new System.Drawing.Size(133, 46);
+            this.extractInput.Size = new System.Drawing.Size(166, 41);
             this.extractInput.TabIndex = 2;
             this.extractInput.Text = "Extract Input";
             this.extractInput.UseVisualStyleBackColor = true;
@@ -200,7 +227,7 @@ namespace Column_Design
             // 
             this.columnsToDesign.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.columnsToDesign.FormattingEnabled = true;
-            this.columnsToDesign.Location = new System.Drawing.Point(208, 147);
+            this.columnsToDesign.Location = new System.Drawing.Point(208, 74);
             this.columnsToDesign.Name = "columnsToDesign";
             this.columnsToDesign.Size = new System.Drawing.Size(109, 32);
             this.columnsToDesign.TabIndex = 3;
@@ -210,64 +237,48 @@ namespace Column_Design
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(25, 150);
+            this.label2.Location = new System.Drawing.Point(25, 77);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(165, 24);
+            this.label2.Size = new System.Drawing.Size(167, 24);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Columns to design";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(336, 150);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(149, 24);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Available Stories";
-            // 
-            // storyName
-            // 
-            this.storyName.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.storyName.FormattingEnabled = true;
-            this.storyName.Location = new System.Drawing.Point(502, 147);
-            this.storyName.Name = "storyName";
-            this.storyName.Size = new System.Drawing.Size(191, 32);
-            this.storyName.TabIndex = 6;
+            this.label2.Text = "Columns To Design";
             // 
             // maxEtabsRebarPt
             // 
             this.maxEtabsRebarPt.Enabled = false;
             this.maxEtabsRebarPt.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.maxEtabsRebarPt.Location = new System.Drawing.Point(222, 728);
+            this.maxEtabsRebarPt.Location = new System.Drawing.Point(1628, 1017);
             this.maxEtabsRebarPt.Name = "maxEtabsRebarPt";
             this.maxEtabsRebarPt.Size = new System.Drawing.Size(95, 32);
             this.maxEtabsRebarPt.TabIndex = 22;
+            this.maxEtabsRebarPt.Visible = false;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(27, 731);
+            this.label11.Location = new System.Drawing.Point(1435, 1020);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(181, 24);
+            this.label11.Size = new System.Drawing.Size(182, 24);
             this.label11.TabIndex = 21;
-            this.label11.Text = "max ETABS rebar (%)";
+            this.label11.Text = "Max ETABS rebar (%)";
+            this.label11.Visible = false;
             // 
             // rebarCover
             // 
             this.rebarCover.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rebarCover.Location = new System.Drawing.Point(191, 25);
+            this.rebarCover.Location = new System.Drawing.Point(244, 28);
             this.rebarCover.Name = "rebarCover";
             this.rebarCover.Size = new System.Drawing.Size(85, 32);
             this.rebarCover.TabIndex = 35;
             this.rebarCover.Text = "40";
+            this.rebarCover.Leave += new System.EventHandler(this.rebarCover_Leave);
             // 
             // label19
             // 
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label19.Location = new System.Drawing.Point(9, 28);
+            this.label19.Location = new System.Drawing.Point(5, 31);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(155, 24);
             this.label19.TabIndex = 34;
@@ -279,9 +290,9 @@ namespace Column_Design
             this.label20.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label20.Location = new System.Drawing.Point(6, 28);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(110, 24);
+            this.label20.Size = new System.Drawing.Size(113, 24);
             this.label20.TabIndex = 36;
-            this.label20.Text = "fy (N/mm2) ";
+            this.label20.Text = "Fy (N/mm2) ";
             // 
             // linkDia
             // 
@@ -290,7 +301,7 @@ namespace Column_Design
             this.linkDia.Name = "linkDia";
             this.linkDia.Size = new System.Drawing.Size(49, 32);
             this.linkDia.TabIndex = 39;
-            this.linkDia.Text = "10";
+            this.linkDia.Text = "8";
             // 
             // label21
             // 
@@ -432,10 +443,11 @@ namespace Column_Design
             // 
             // addToExcel
             // 
+            this.addToExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.addToExcel.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addToExcel.Location = new System.Drawing.Point(1574, 135);
+            this.addToExcel.Location = new System.Drawing.Point(1744, 69);
             this.addToExcel.Name = "addToExcel";
-            this.addToExcel.Size = new System.Drawing.Size(133, 46);
+            this.addToExcel.Size = new System.Drawing.Size(166, 41);
             this.addToExcel.TabIndex = 81;
             this.addToExcel.Text = "Add to excel";
             this.addToExcel.UseVisualStyleBackColor = true;
@@ -659,7 +671,7 @@ namespace Column_Design
             "250",
             "415",
             "500"});
-            this.givenLinkFy.Location = new System.Drawing.Point(121, 25);
+            this.givenLinkFy.Location = new System.Drawing.Point(125, 25);
             this.givenLinkFy.Name = "givenLinkFy";
             this.givenLinkFy.Size = new System.Drawing.Size(85, 32);
             this.givenLinkFy.TabIndex = 105;
@@ -737,12 +749,16 @@ namespace Column_Design
             // 
             // ResultsTable
             // 
-            this.ResultsTable.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.ResultsTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ResultsTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.ResultsTable.CausesValidation = false;
             this.ResultsTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ResultsTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnLabel,
             this.StoryValue,
+            this.StoryElevation,
             this.LocationValue,
             this.fckValueFromTable,
             this.depthValueFromTable,
@@ -754,9 +770,10 @@ namespace Column_Design
             this.MMinorValue,
             this.LoadUtilValue,
             this.MomentRatioValue,
-            this.AdSecRebarDescription,
-            this.AdSecRebar,
             this.ETABSRebarValue,
+            this.AdSecRebar,
+            this.TensileRebar,
+            this.AdSecRebarDescription,
             this.vAlongYValue,
             this.vAlongXValue,
             this.asvProvidedAlongYValue,
@@ -767,12 +784,21 @@ namespace Column_Design
             this.NonConfiningSpacingRequired,
             this.confiningSpacingRequiredValue,
             this.AshRequiredValue});
-            this.ResultsTable.Location = new System.Drawing.Point(29, 201);
+            this.ResultsTable.EnableHeadersVisualStyles = false;
+            this.ResultsTable.Location = new System.Drawing.Point(29, 133);
             this.ResultsTable.Name = "ResultsTable";
+            this.ResultsTable.ReadOnly = true;
             this.ResultsTable.RowHeadersWidth = 51;
             this.ResultsTable.RowTemplate.Height = 24;
-            this.ResultsTable.Size = new System.Drawing.Size(1680, 506);
+            this.ResultsTable.Size = new System.Drawing.Size(1881, 543);
             this.ResultsTable.TabIndex = 111;
+            // 
+            // ColumnLabel
+            // 
+            this.ColumnLabel.HeaderText = "Column Label";
+            this.ColumnLabel.MinimumWidth = 6;
+            this.ColumnLabel.Name = "ColumnLabel";
+            this.ColumnLabel.ReadOnly = true;
             // 
             // StoryValue
             // 
@@ -781,6 +807,13 @@ namespace Column_Design
             this.StoryValue.MinimumWidth = 6;
             this.StoryValue.Name = "StoryValue";
             this.StoryValue.ReadOnly = true;
+            // 
+            // StoryElevation
+            // 
+            this.StoryElevation.HeaderText = "Story Elevation (m)";
+            this.StoryElevation.MinimumWidth = 6;
+            this.StoryElevation.Name = "StoryElevation";
+            this.StoryElevation.ReadOnly = true;
             // 
             // LocationValue
             // 
@@ -792,33 +825,38 @@ namespace Column_Design
             // 
             // fckValueFromTable
             // 
-            this.fckValueFromTable.HeaderText = "fck (N/mm2)";
+            this.fckValueFromTable.HeaderText = "Fck (N/mm2)";
             this.fckValueFromTable.MinimumWidth = 6;
             this.fckValueFromTable.Name = "fckValueFromTable";
+            this.fckValueFromTable.ReadOnly = true;
             // 
             // depthValueFromTable
             // 
             this.depthValueFromTable.HeaderText = "Depth (mm)";
             this.depthValueFromTable.MinimumWidth = 6;
             this.depthValueFromTable.Name = "depthValueFromTable";
+            this.depthValueFromTable.ReadOnly = true;
             // 
             // WidthValueFromTable
             // 
             this.WidthValueFromTable.HeaderText = "Width (mm)";
             this.WidthValueFromTable.MinimumWidth = 6;
             this.WidthValueFromTable.Name = "WidthValueFromTable";
+            this.WidthValueFromTable.ReadOnly = true;
             // 
             // columnLengthValue
             // 
             this.columnLengthValue.HeaderText = "Length (mm)";
             this.columnLengthValue.MinimumWidth = 6;
             this.columnLengthValue.Name = "columnLengthValue";
+            this.columnLengthValue.ReadOnly = true;
             // 
             // GoverningComboValue
             // 
             this.GoverningComboValue.HeaderText = "Load Combination";
             this.GoverningComboValue.MinimumWidth = 6;
             this.GoverningComboValue.Name = "GoverningComboValue";
+            this.GoverningComboValue.ReadOnly = true;
             // 
             // PValue
             // 
@@ -826,28 +864,32 @@ namespace Column_Design
             this.PValue.HeaderText = "P (kN)";
             this.PValue.MinimumWidth = 6;
             this.PValue.Name = "PValue";
+            this.PValue.ReadOnly = true;
             // 
             // MMajorValue
             // 
             this.MMajorValue.FillWeight = 96.17442F;
-            this.MMajorValue.HeaderText = "M Major (kNm)";
+            this.MMajorValue.HeaderText = "M33 (kNm)";
             this.MMajorValue.MinimumWidth = 6;
             this.MMajorValue.Name = "MMajorValue";
+            this.MMajorValue.ReadOnly = true;
             // 
             // MMinorValue
             // 
             this.MMinorValue.FillWeight = 96.17442F;
-            this.MMinorValue.HeaderText = "M Minor (kNm)";
+            this.MMinorValue.HeaderText = "M22 (kNm)";
             this.MMinorValue.MinimumWidth = 6;
             this.MMinorValue.Name = "MMinorValue";
+            this.MMinorValue.ReadOnly = true;
             // 
             // LoadUtilValue
             // 
             this.LoadUtilValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.LoadUtilValue.FillWeight = 149.7326F;
-            this.LoadUtilValue.HeaderText = "Load util.";
+            this.LoadUtilValue.HeaderText = "Load Utilisation";
             this.LoadUtilValue.MinimumWidth = 6;
             this.LoadUtilValue.Name = "LoadUtilValue";
+            this.LoadUtilValue.ReadOnly = true;
             this.LoadUtilValue.Width = 60;
             // 
             // MomentRatioValue
@@ -857,7 +899,31 @@ namespace Column_Design
             this.MomentRatioValue.HeaderText = "M/Mu";
             this.MomentRatioValue.MinimumWidth = 6;
             this.MomentRatioValue.Name = "MomentRatioValue";
+            this.MomentRatioValue.ReadOnly = true;
             this.MomentRatioValue.Width = 60;
+            // 
+            // ETABSRebarValue
+            // 
+            this.ETABSRebarValue.FillWeight = 96.17442F;
+            this.ETABSRebarValue.HeaderText = "Rebar Required - ETABS (%)";
+            this.ETABSRebarValue.MinimumWidth = 6;
+            this.ETABSRebarValue.Name = "ETABSRebarValue";
+            this.ETABSRebarValue.ReadOnly = true;
+            // 
+            // AdSecRebar
+            // 
+            this.AdSecRebar.FillWeight = 96.17442F;
+            this.AdSecRebar.HeaderText = "Rebar Provided - AdSec (%)";
+            this.AdSecRebar.MinimumWidth = 6;
+            this.AdSecRebar.Name = "AdSecRebar";
+            this.AdSecRebar.ReadOnly = true;
+            // 
+            // TensileRebar
+            // 
+            this.TensileRebar.HeaderText = "Tensile Rebar (%)";
+            this.TensileRebar.MinimumWidth = 6;
+            this.TensileRebar.Name = "TensileRebar";
+            this.TensileRebar.ReadOnly = true;
             // 
             // AdSecRebarDescription
             // 
@@ -866,83 +932,80 @@ namespace Column_Design
             this.AdSecRebarDescription.HeaderText = "Rebar Description";
             this.AdSecRebarDescription.MinimumWidth = 6;
             this.AdSecRebarDescription.Name = "AdSecRebarDescription";
+            this.AdSecRebarDescription.ReadOnly = true;
             this.AdSecRebarDescription.Width = 130;
-            // 
-            // AdSecRebar
-            // 
-            this.AdSecRebar.FillWeight = 96.17442F;
-            this.AdSecRebar.HeaderText = "AdSec Rebar pro. (%)";
-            this.AdSecRebar.MinimumWidth = 6;
-            this.AdSecRebar.Name = "AdSecRebar";
-            // 
-            // ETABSRebarValue
-            // 
-            this.ETABSRebarValue.FillWeight = 96.17442F;
-            this.ETABSRebarValue.HeaderText = "ETABS Rebar pro. (%)";
-            this.ETABSRebarValue.MinimumWidth = 6;
-            this.ETABSRebarValue.Name = "ETABSRebarValue";
             // 
             // vAlongYValue
             // 
-            this.vAlongYValue.HeaderText = "V along Y (kN)";
+            this.vAlongYValue.HeaderText = "Vy (kN)";
             this.vAlongYValue.MinimumWidth = 6;
             this.vAlongYValue.Name = "vAlongYValue";
+            this.vAlongYValue.ReadOnly = true;
             // 
             // vAlongXValue
             // 
-            this.vAlongXValue.HeaderText = "V along X (kN)";
+            this.vAlongXValue.HeaderText = "Vx (kN)";
             this.vAlongXValue.MinimumWidth = 6;
             this.vAlongXValue.Name = "vAlongXValue";
+            this.vAlongXValue.ReadOnly = true;
             // 
             // asvProvidedAlongYValue
             // 
-            this.asvProvidedAlongYValue.HeaderText = "Asv pro along Y (mm2)";
+            this.asvProvidedAlongYValue.HeaderText = "Asvy (mm2)";
             this.asvProvidedAlongYValue.MinimumWidth = 6;
             this.asvProvidedAlongYValue.Name = "asvProvidedAlongYValue";
+            this.asvProvidedAlongYValue.ReadOnly = true;
             // 
             // asvProvidedAlongXValue
             // 
-            this.asvProvidedAlongXValue.HeaderText = "Asv pro along X (mm2)";
+            this.asvProvidedAlongXValue.HeaderText = "Asvx (mm2)";
             this.asvProvidedAlongXValue.MinimumWidth = 6;
             this.asvProvidedAlongXValue.Name = "asvProvidedAlongXValue";
+            this.asvProvidedAlongXValue.ReadOnly = true;
             // 
             // tauC
             // 
             this.tauC.FillWeight = 96.17442F;
-            this.tauC.HeaderText = "Tau C (N/sq.mm)";
+            this.tauC.HeaderText = "Tau C (N/mm2)";
             this.tauC.MinimumWidth = 6;
             this.tauC.Name = "tauC";
+            this.tauC.ReadOnly = true;
             // 
             // tauVAlongYValue
             // 
-            this.tauVAlongYValue.HeaderText = "Tau V along Y (N/mm2)";
+            this.tauVAlongYValue.HeaderText = "Tau Vy (N/mm2)";
             this.tauVAlongYValue.MinimumWidth = 6;
             this.tauVAlongYValue.Name = "tauVAlongYValue";
+            this.tauVAlongYValue.ReadOnly = true;
             // 
             // tauVAlongXValue
             // 
-            this.tauVAlongXValue.HeaderText = "Tau V along X (N/mm2)";
+            this.tauVAlongXValue.HeaderText = "Tau Vx (N/mm2)";
             this.tauVAlongXValue.MinimumWidth = 6;
             this.tauVAlongXValue.Name = "tauVAlongXValue";
+            this.tauVAlongXValue.ReadOnly = true;
             // 
             // NonConfiningSpacingRequired
             // 
             this.NonConfiningSpacingRequired.FillWeight = 96.17442F;
-            this.NonConfiningSpacingRequired.HeaderText = "max permissible NC Spacing (mm)";
+            this.NonConfiningSpacingRequired.HeaderText = "Maximum NC Spacing (mm)";
             this.NonConfiningSpacingRequired.MinimumWidth = 6;
             this.NonConfiningSpacingRequired.Name = "NonConfiningSpacingRequired";
+            this.NonConfiningSpacingRequired.ReadOnly = true;
             // 
             // confiningSpacingRequiredValue
             // 
-            this.confiningSpacingRequiredValue.HeaderText = "max permissible C Spacing (mm)";
+            this.confiningSpacingRequiredValue.HeaderText = "Maximum C Spacing (mm)";
             this.confiningSpacingRequiredValue.MinimumWidth = 6;
             this.confiningSpacingRequiredValue.Name = "confiningSpacingRequiredValue";
+            this.confiningSpacingRequiredValue.ReadOnly = true;
             // 
             // AshRequiredValue
             // 
-            this.AshRequiredValue.HeaderText = "min Ash req. (mm2)";
+            this.AshRequiredValue.HeaderText = "Ash Required (mm2)";
             this.AshRequiredValue.MinimumWidth = 6;
             this.AshRequiredValue.Name = "AshRequiredValue";
+            this.AshRequiredValue.ReadOnly = true;
             // 
             // givenPerimFy
             // 
@@ -1019,8 +1082,9 @@ namespace Column_Design
             // 
             // Design
             // 
+            this.Design.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Design.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Design.Location = new System.Drawing.Point(834, 772);
+            this.Design.Location = new System.Drawing.Point(1325, 886);
             this.Design.Name = "Design";
             this.Design.Size = new System.Drawing.Size(133, 46);
             this.Design.TabIndex = 121;
@@ -1041,7 +1105,7 @@ namespace Column_Design
             // maximumSpacing
             // 
             this.maximumSpacing.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.maximumSpacing.Location = new System.Drawing.Point(191, 105);
+            this.maximumSpacing.Location = new System.Drawing.Point(244, 108);
             this.maximumSpacing.Name = "maximumSpacing";
             this.maximumSpacing.Size = new System.Drawing.Size(85, 32);
             this.maximumSpacing.TabIndex = 125;
@@ -1055,7 +1119,7 @@ namespace Column_Design
             "250",
             "415",
             "500"});
-            this.designLongFy.Location = new System.Drawing.Point(191, 65);
+            this.designLongFy.Location = new System.Drawing.Point(244, 68);
             this.designLongFy.Name = "designLongFy";
             this.designLongFy.Size = new System.Drawing.Size(85, 32);
             this.designLongFy.TabIndex = 128;
@@ -1067,14 +1131,14 @@ namespace Column_Design
             this.label15.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.Location = new System.Drawing.Point(6, 68);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(110, 24);
+            this.label15.Size = new System.Drawing.Size(113, 24);
             this.label15.TabIndex = 127;
-            this.label15.Text = "fy (N/mm2) ";
+            this.label15.Text = "Fy (N/mm2) ";
             // 
             // nonConfiningSpacing
             // 
             this.nonConfiningSpacing.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nonConfiningSpacing.Location = new System.Drawing.Point(375, 110);
+            this.nonConfiningSpacing.Location = new System.Drawing.Point(375, 116);
             this.nonConfiningSpacing.Name = "nonConfiningSpacing";
             this.nonConfiningSpacing.Size = new System.Drawing.Size(86, 32);
             this.nonConfiningSpacing.TabIndex = 132;
@@ -1084,7 +1148,7 @@ namespace Column_Design
             // 
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(227, 113);
+            this.label17.Location = new System.Drawing.Point(227, 119);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(131, 24);
             this.label17.TabIndex = 131;
@@ -1124,14 +1188,14 @@ namespace Column_Design
             this.label29.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label29.Location = new System.Drawing.Point(6, 28);
             this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(171, 24);
+            this.label29.Size = new System.Drawing.Size(172, 24);
             this.label29.TabIndex = 139;
-            this.label29.Text = "Tau CMax (N/mm2)";
+            this.label29.Text = "Tau c max (N/mm2)";
             // 
             // confiningSpacing
             // 
             this.confiningSpacing.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.confiningSpacing.Location = new System.Drawing.Point(121, 110);
+            this.confiningSpacing.Location = new System.Drawing.Point(125, 116);
             this.confiningSpacing.Name = "confiningSpacing";
             this.confiningSpacing.Size = new System.Drawing.Size(86, 32);
             this.confiningSpacing.TabIndex = 142;
@@ -1141,7 +1205,7 @@ namespace Column_Design
             // 
             this.label37.AutoSize = true;
             this.label37.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label37.Location = new System.Drawing.Point(6, 113);
+            this.label37.Location = new System.Drawing.Point(6, 119);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(90, 24);
             this.label37.TabIndex = 141;
@@ -1162,42 +1226,17 @@ namespace Column_Design
             this.label38.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label38.Location = new System.Drawing.Point(6, 108);
             this.label38.Name = "label38";
-            this.label38.Size = new System.Drawing.Size(180, 24);
+            this.label38.Size = new System.Drawing.Size(179, 24);
             this.label38.TabIndex = 143;
-            this.label38.Text = "Ash provided (mm2)";
-            // 
-            // storiesToDesign
-            // 
-            this.storiesToDesign.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.storiesToDesign.FormattingEnabled = true;
-            this.storiesToDesign.Location = new System.Drawing.Point(1043, 149);
-            this.storiesToDesign.Name = "storiesToDesign";
-            this.storiesToDesign.Size = new System.Drawing.Size(191, 32);
-            this.storiesToDesign.TabIndex = 146;
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(890, 152);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(142, 24);
-            this.label16.TabIndex = 145;
-            this.label16.Text = "Selected Stories";
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(699, 147);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(173, 34);
-            this.button2.TabIndex = 147;
-            this.button2.Text = "Add to design";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.label38.Text = "Ash Provided (mm2)";
             // 
             // linkBox
             // 
+            this.linkBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.linkBox.Controls.Add(this.label3);
+            this.linkBox.Controls.Add(this.IncreaseTauC);
+            this.linkBox.Controls.Add(this.label14);
+            this.linkBox.Controls.Add(this.IsGravityColumn);
             this.linkBox.Controls.Add(this.label4);
             this.linkBox.Controls.Add(this.label20);
             this.linkBox.Controls.Add(this.givenLinkFy);
@@ -1207,60 +1246,166 @@ namespace Column_Design
             this.linkBox.Controls.Add(this.label17);
             this.linkBox.Controls.Add(this.confiningSpacing);
             this.linkBox.Controls.Add(this.nonConfiningSpacing);
-            this.linkBox.Location = new System.Drawing.Point(342, 766);
+            this.linkBox.Location = new System.Drawing.Point(818, 696);
             this.linkBox.Name = "linkBox";
-            this.linkBox.Size = new System.Drawing.Size(478, 153);
+            this.linkBox.Size = new System.Drawing.Size(478, 329);
             this.linkBox.TabIndex = 148;
             this.linkBox.TabStop = false;
             this.linkBox.Text = "Transverse Design Input";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(6, 170);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(403, 24);
+            this.label3.TabIndex = 163;
+            this.label3.Text = "Shear strength of members under compression";
+            // 
+            // IncreaseTauC
+            // 
+            this.IncreaseTauC.AutoSize = true;
+            this.IncreaseTauC.Location = new System.Drawing.Point(10, 206);
+            this.IncreaseTauC.Name = "IncreaseTauC";
+            this.IncreaseTauC.Size = new System.Drawing.Size(306, 21);
+            this.IncreaseTauC.TabIndex = 162;
+            this.IncreaseTauC.Text = "Increase Tau c as per cl.40.2.2, IS456 2000";
+            this.IncreaseTauC.UseVisualStyleBackColor = true;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(6, 252);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(155, 24);
+            this.label14.TabIndex = 161;
+            this.label14.Text = "Ash Requirement";
+            // 
+            // IsGravityColumn
+            // 
+            this.IsGravityColumn.AutoSize = true;
+            this.IsGravityColumn.Location = new System.Drawing.Point(10, 286);
+            this.IsGravityColumn.Name = "IsGravityColumn";
+            this.IsGravityColumn.Size = new System.Drawing.Size(133, 21);
+            this.IsGravityColumn.TabIndex = 160;
+            this.IsGravityColumn.Text = "Gravity Columns";
+            this.IsGravityColumn.UseVisualStyleBackColor = true;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(6, 76);
+            this.label4.Location = new System.Drawing.Point(6, 82);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(202, 24);
+            this.label4.Size = new System.Drawing.Size(201, 24);
             this.label4.TabIndex = 143;
-            this.label4.Text = "Spacing provided (mm)";
+            this.label4.Text = "Spacing Provided (mm)";
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.label29);
             this.groupBox1.Controls.Add(this.designTauCMax);
             this.groupBox1.Controls.Add(this.label33);
             this.groupBox1.Controls.Add(this.label38);
             this.groupBox1.Controls.Add(this.designMinAsv);
             this.groupBox1.Controls.Add(this.AshProvided);
-            this.groupBox1.Location = new System.Drawing.Point(994, 766);
+            this.groupBox1.Location = new System.Drawing.Point(1556, 696);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(350, 153);
+            this.groupBox1.Size = new System.Drawing.Size(350, 175);
             this.groupBox1.TabIndex = 149;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Transverse Design Output";
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox2.Controls.Add(this.label18);
+            this.groupBox2.Controls.Add(this.UtilisationLimit);
+            this.groupBox2.Controls.Add(this.OverrideMinorEcc);
+            this.groupBox2.Controls.Add(this.OverrideMajorEcc);
+            this.groupBox2.Controls.Add(this.label13);
+            this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.minEccMinor);
             this.groupBox2.Controls.Add(this.minEccMajor);
-            this.groupBox2.Controls.Add(this.minEccOverride);
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.designLongFy);
             this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.maximumSpacing);
             this.groupBox2.Controls.Add(this.label19);
             this.groupBox2.Controls.Add(this.rebarCover);
-            this.groupBox2.Location = new System.Drawing.Point(31, 766);
+            this.groupBox2.Location = new System.Drawing.Point(363, 696);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(296, 276);
+            this.groupBox2.Size = new System.Drawing.Size(426, 329);
             this.groupBox2.TabIndex = 150;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Longitudinal Design Input";
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label18.Location = new System.Drawing.Point(6, 231);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(172, 24);
+            this.label18.TabIndex = 164;
+            this.label18.Text = "Utilisation Limit (%)";
+            // 
+            // UtilisationLimit
+            // 
+            this.UtilisationLimit.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.UtilisationLimit.Location = new System.Drawing.Point(244, 228);
+            this.UtilisationLimit.Name = "UtilisationLimit";
+            this.UtilisationLimit.Size = new System.Drawing.Size(85, 32);
+            this.UtilisationLimit.TabIndex = 163;
+            this.UtilisationLimit.Text = "100";
+            // 
+            // OverrideMinorEcc
+            // 
+            this.OverrideMinorEcc.AutoSize = true;
+            this.OverrideMinorEcc.Location = new System.Drawing.Point(335, 192);
+            this.OverrideMinorEcc.Name = "OverrideMinorEcc";
+            this.OverrideMinorEcc.Size = new System.Drawing.Size(85, 21);
+            this.OverrideMinorEcc.TabIndex = 162;
+            this.OverrideMinorEcc.Text = "Override";
+            this.OverrideMinorEcc.UseVisualStyleBackColor = true;
+            // 
+            // OverrideMajorEcc
+            // 
+            this.OverrideMajorEcc.AutoSize = true;
+            this.OverrideMajorEcc.Location = new System.Drawing.Point(335, 156);
+            this.OverrideMajorEcc.Name = "OverrideMajorEcc";
+            this.OverrideMajorEcc.Size = new System.Drawing.Size(85, 21);
+            this.OverrideMajorEcc.TabIndex = 161;
+            this.OverrideMajorEcc.Text = "Override";
+            this.OverrideMajorEcc.UseVisualStyleBackColor = true;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(5, 189);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(221, 24);
+            this.label13.TabIndex = 158;
+            this.label13.Text = "Eccentricity - Minor (mm)";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(5, 149);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(220, 24);
+            this.label7.TabIndex = 157;
+            this.label7.Text = "Eccentricity - Major (mm)";
+            // 
             // minEccMinor
             // 
             this.minEccMinor.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.minEccMinor.Location = new System.Drawing.Point(191, 183);
+            this.minEccMinor.Location = new System.Drawing.Point(244, 186);
             this.minEccMinor.Name = "minEccMinor";
             this.minEccMinor.Size = new System.Drawing.Size(85, 32);
             this.minEccMinor.TabIndex = 156;
@@ -1269,20 +1414,11 @@ namespace Column_Design
             // minEccMajor
             // 
             this.minEccMajor.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.minEccMajor.Location = new System.Drawing.Point(191, 143);
+            this.minEccMajor.Location = new System.Drawing.Point(244, 146);
             this.minEccMajor.Name = "minEccMajor";
             this.minEccMajor.Size = new System.Drawing.Size(85, 32);
             this.minEccMajor.TabIndex = 155;
             this.minEccMajor.Text = "20";
-            // 
-            // minEccOverride
-            // 
-            this.minEccOverride.CheckOnClick = true;
-            this.minEccOverride.FormattingEnabled = true;
-            this.minEccOverride.Location = new System.Drawing.Point(10, 143);
-            this.minEccOverride.Name = "minEccOverride";
-            this.minEccOverride.Size = new System.Drawing.Size(175, 72);
-            this.minEccOverride.TabIndex = 154;
             // 
             // groupBox3
             // 
@@ -1341,7 +1477,7 @@ namespace Column_Design
             this.groupBox3.Controls.Add(this.checkTop);
             this.groupBox3.Controls.Add(this.lineGroupsAdded);
             this.groupBox3.Controls.Add(this.button1);
-            this.groupBox3.Location = new System.Drawing.Point(352, 1012);
+            this.groupBox3.Location = new System.Drawing.Point(2163, 1486);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(182, 31);
             this.groupBox3.TabIndex = 151;
@@ -1427,29 +1563,19 @@ namespace Column_Design
             // 
             // columnsToShow
             // 
+            this.columnsToShow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.columnsToShow.CheckOnClick = true;
             this.columnsToShow.FormattingEnabled = true;
-            this.columnsToShow.Location = new System.Drawing.Point(1360, 728);
+            this.columnsToShow.Location = new System.Drawing.Point(1556, 877);
             this.columnsToShow.Name = "columnsToShow";
-            this.columnsToShow.Size = new System.Drawing.Size(173, 174);
+            this.columnsToShow.Size = new System.Drawing.Size(350, 157);
             this.columnsToShow.TabIndex = 152;
             this.columnsToShow.SelectedIndexChanged += new System.EventHandler(this.columnsToShow_SelectedIndexChanged);
-            // 
-            // button3
-            // 
-            this.button3.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.Location = new System.Drawing.Point(1240, 147);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(173, 34);
-            this.button3.TabIndex = 153;
-            this.button3.Text = "Remove story";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // ColumnGroupName
             // 
             this.ColumnGroupName.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ColumnGroupName.Location = new System.Drawing.Point(229, 54);
+            this.ColumnGroupName.Location = new System.Drawing.Point(214, 71);
             this.ColumnGroupName.Name = "ColumnGroupName";
             this.ColumnGroupName.Size = new System.Drawing.Size(1132, 32);
             this.ColumnGroupName.TabIndex = 155;
@@ -1459,7 +1585,7 @@ namespace Column_Design
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(25, 57);
+            this.label5.Location = new System.Drawing.Point(10, 74);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(187, 24);
             this.label5.TabIndex = 154;
@@ -1468,7 +1594,7 @@ namespace Column_Design
             // modelPath
             // 
             this.modelPath.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.modelPath.Location = new System.Drawing.Point(229, 16);
+            this.modelPath.Location = new System.Drawing.Point(214, 33);
             this.modelPath.Name = "modelPath";
             this.modelPath.Size = new System.Drawing.Size(1132, 32);
             this.modelPath.TabIndex = 157;
@@ -1479,7 +1605,7 @@ namespace Column_Design
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(26, 19);
+            this.label6.Location = new System.Drawing.Point(11, 36);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(162, 24);
             this.label6.TabIndex = 156;
@@ -1488,7 +1614,7 @@ namespace Column_Design
             // ExtractETABSTables
             // 
             this.ExtractETABSTables.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ExtractETABSTables.Location = new System.Drawing.Point(1380, 16);
+            this.ExtractETABSTables.Location = new System.Drawing.Point(1365, 33);
             this.ExtractETABSTables.Name = "ExtractETABSTables";
             this.ExtractETABSTables.Size = new System.Drawing.Size(202, 46);
             this.ExtractETABSTables.TabIndex = 158;
@@ -1496,31 +1622,157 @@ namespace Column_Design
             this.ExtractETABSTables.UseVisualStyleBackColor = true;
             this.ExtractETABSTables.Click += new System.EventHandler(this.ExtractETABSTables_Click);
             // 
+            // UniformRebar
+            // 
+            this.UniformRebar.AutoSize = true;
+            this.UniformRebar.Location = new System.Drawing.Point(15, 138);
+            this.UniformRebar.Name = "UniformRebar";
+            this.UniformRebar.Size = new System.Drawing.Size(175, 21);
+            this.UniformRebar.TabIndex = 159;
+            this.UniformRebar.Text = "Uniform Reinforcement";
+            this.UniformRebar.UseVisualStyleBackColor = true;
+            // 
+            // Include16mmBar
+            // 
+            this.Include16mmBar.AutoSize = true;
+            this.Include16mmBar.Location = new System.Drawing.Point(15, 28);
+            this.Include16mmBar.Name = "Include16mmBar";
+            this.Include16mmBar.Size = new System.Drawing.Size(117, 21);
+            this.Include16mmBar.TabIndex = 160;
+            this.Include16mmBar.Text = "Include 16mm";
+            this.Include16mmBar.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox4.Controls.Add(this.Include32mmBar);
+            this.groupBox4.Controls.Add(this.UniformRebar);
+            this.groupBox4.Controls.Add(this.Include25mmBar);
+            this.groupBox4.Controls.Add(this.Include20mmBar);
+            this.groupBox4.Controls.Add(this.Include16mmBar);
+            this.groupBox4.Location = new System.Drawing.Point(1325, 696);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(205, 175);
+            this.groupBox4.TabIndex = 149;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Rebar Arrangement";
+            // 
+            // Include32mmBar
+            // 
+            this.Include32mmBar.AutoSize = true;
+            this.Include32mmBar.Location = new System.Drawing.Point(15, 109);
+            this.Include32mmBar.Name = "Include32mmBar";
+            this.Include32mmBar.Size = new System.Drawing.Size(117, 21);
+            this.Include32mmBar.TabIndex = 163;
+            this.Include32mmBar.Text = "Include 32mm";
+            this.Include32mmBar.UseVisualStyleBackColor = true;
+            // 
+            // Include25mmBar
+            // 
+            this.Include25mmBar.AutoSize = true;
+            this.Include25mmBar.Location = new System.Drawing.Point(15, 82);
+            this.Include25mmBar.Name = "Include25mmBar";
+            this.Include25mmBar.Size = new System.Drawing.Size(117, 21);
+            this.Include25mmBar.TabIndex = 162;
+            this.Include25mmBar.Text = "Include 25mm";
+            this.Include25mmBar.UseVisualStyleBackColor = true;
+            // 
+            // Include20mmBar
+            // 
+            this.Include20mmBar.AutoSize = true;
+            this.Include20mmBar.Location = new System.Drawing.Point(15, 55);
+            this.Include20mmBar.Name = "Include20mmBar";
+            this.Include20mmBar.Size = new System.Drawing.Size(117, 21);
+            this.Include20mmBar.TabIndex = 161;
+            this.Include20mmBar.Text = "Include 20mm";
+            this.Include20mmBar.UseVisualStyleBackColor = true;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox5.Controls.Add(this.ColumnGroupName);
+            this.groupBox5.Controls.Add(this.label5);
+            this.groupBox5.Controls.Add(this.label6);
+            this.groupBox5.Controls.Add(this.ExtractETABSTables);
+            this.groupBox5.Controls.Add(this.modelPath);
+            this.groupBox5.Location = new System.Drawing.Point(1568, 1491);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(165, 20);
+            this.groupBox5.TabIndex = 152;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Extract ETABS forces";
+            this.groupBox5.Visible = false;
+            // 
+            // BrowseInputFIle
+            // 
+            this.BrowseInputFIle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BrowseInputFIle.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BrowseInputFIle.Location = new System.Drawing.Point(1572, 23);
+            this.BrowseInputFIle.Name = "BrowseInputFIle";
+            this.BrowseInputFIle.Size = new System.Drawing.Size(166, 41);
+            this.BrowseInputFIle.TabIndex = 154;
+            this.BrowseInputFIle.Text = "Browse";
+            this.BrowseInputFIle.UseVisualStyleBackColor = true;
+            this.BrowseInputFIle.Click += new System.EventHandler(this.BrowseInputFIle_Click);
+            // 
+            // DesignStories
+            // 
+            this.DesignStories.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.DesignStories.CheckOnClick = true;
+            this.DesignStories.FormattingEnabled = true;
+            this.DesignStories.Location = new System.Drawing.Point(29, 696);
+            this.DesignStories.Name = "DesignStories";
+            this.DesignStories.Size = new System.Drawing.Size(307, 225);
+            this.DesignStories.TabIndex = 155;
+            // 
+            // UpdateDesignRows
+            // 
+            this.UpdateDesignRows.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.UpdateDesignRows.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.UpdateDesignRows.Location = new System.Drawing.Point(29, 926);
+            this.UpdateDesignRows.Name = "UpdateDesignRows";
+            this.UpdateDesignRows.Size = new System.Drawing.Size(173, 46);
+            this.UpdateDesignRows.TabIndex = 156;
+            this.UpdateDesignRows.Text = "Add To Design";
+            this.UpdateDesignRows.UseVisualStyleBackColor = true;
+            this.UpdateDesignRows.Click += new System.EventHandler(this.UpdateDesignRows_Click);
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
+            // ClearDesignTable
+            // 
+            this.ClearDesignTable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ClearDesignTable.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ClearDesignTable.Location = new System.Drawing.Point(29, 979);
+            this.ClearDesignTable.Name = "ClearDesignTable";
+            this.ClearDesignTable.Size = new System.Drawing.Size(173, 46);
+            this.ClearDesignTable.TabIndex = 159;
+            this.ClearDesignTable.Text = "Clear Table";
+            this.ClearDesignTable.UseVisualStyleBackColor = true;
+            this.ClearDesignTable.Click += new System.EventHandler(this.ClearDesignTable_Click);
+            // 
             // ColumnDesignForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1721, 1055);
-            this.Controls.Add(this.ExtractETABSTables);
-            this.Controls.Add(this.modelPath);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.ColumnGroupName);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.button3);
+            this.ClientSize = new System.Drawing.Size(1924, 1055);
+            this.Controls.Add(this.ClearDesignTable);
+            this.Controls.Add(this.UpdateDesignRows);
+            this.Controls.Add(this.DesignStories);
+            this.Controls.Add(this.BrowseInputFIle);
+            this.Controls.Add(this.groupBox5);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.columnsToShow);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.linkBox);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.storiesToDesign);
-            this.Controls.Add(this.label16);
             this.Controls.Add(this.Design);
             this.Controls.Add(this.ResultsTable);
             this.Controls.Add(this.addToExcel);
             this.Controls.Add(this.maxEtabsRebarPt);
             this.Controls.Add(this.label11);
-            this.Controls.Add(this.storyName);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.columnsToDesign);
             this.Controls.Add(this.extractInput);
@@ -1528,7 +1780,7 @@ namespace Column_Design
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBox3);
             this.Name = "ColumnDesignForm";
-            this.Text = "Column design";
+            this.Text = "RCCD 1.0";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.ResultsTable)).EndInit();
             this.linkBox.ResumeLayout(false);
@@ -1539,6 +1791,11 @@ namespace Column_Design
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1551,8 +1808,6 @@ namespace Column_Design
         private System.Windows.Forms.Button extractInput;
         private System.Windows.Forms.ComboBox columnsToDesign;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox storyName;
         private System.Windows.Forms.TextBox maxEtabsRebarPt;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TextBox rebarCover;
@@ -1624,9 +1879,6 @@ namespace Column_Design
         private System.Windows.Forms.Label label37;
         private System.Windows.Forms.TextBox AshProvided;
         private System.Windows.Forms.Label label38;
-        private System.Windows.Forms.ComboBox storiesToDesign;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.GroupBox linkBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -1641,11 +1893,36 @@ namespace Column_Design
         private System.Windows.Forms.TextBox leftDia;
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.CheckedListBox columnsToShow;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.CheckedListBox minEccOverride;
         private System.Windows.Forms.TextBox minEccMinor;
         private System.Windows.Forms.TextBox minEccMajor;
+        private System.Windows.Forms.TextBox ColumnGroupName;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox modelPath;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button ExtractETABSTables;
+        private System.Windows.Forms.CheckBox UniformRebar;
+        private System.Windows.Forms.CheckBox Include16mmBar;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.CheckBox Include32mmBar;
+        private System.Windows.Forms.CheckBox Include25mmBar;
+        private System.Windows.Forms.CheckBox Include20mmBar;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox OverrideMinorEcc;
+        private System.Windows.Forms.CheckBox OverrideMajorEcc;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.CheckBox IsGravityColumn;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox UtilisationLimit;
+        private System.Windows.Forms.Button BrowseInputFIle;
+        private System.Windows.Forms.CheckedListBox DesignStories;
+        private System.Windows.Forms.Button UpdateDesignRows;
+        private System.Windows.Forms.CheckBox IncreaseTauC;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn StoryValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StoryElevation;
         private System.Windows.Forms.DataGridViewTextBoxColumn LocationValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn fckValueFromTable;
         private System.Windows.Forms.DataGridViewTextBoxColumn depthValueFromTable;
@@ -1657,9 +1934,10 @@ namespace Column_Design
         private System.Windows.Forms.DataGridViewTextBoxColumn MMinorValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn LoadUtilValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn MomentRatioValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn AdSecRebarDescription;
-        private System.Windows.Forms.DataGridViewTextBoxColumn AdSecRebar;
         private System.Windows.Forms.DataGridViewTextBoxColumn ETABSRebarValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn AdSecRebar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TensileRebar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn AdSecRebarDescription;
         private System.Windows.Forms.DataGridViewTextBoxColumn vAlongYValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn vAlongXValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn asvProvidedAlongYValue;
@@ -1670,11 +1948,8 @@ namespace Column_Design
         private System.Windows.Forms.DataGridViewTextBoxColumn NonConfiningSpacingRequired;
         private System.Windows.Forms.DataGridViewTextBoxColumn confiningSpacingRequiredValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn AshRequiredValue;
-        private System.Windows.Forms.TextBox ColumnGroupName;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox modelPath;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button ExtractETABSTables;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Button ClearDesignTable;
     }
 }
 

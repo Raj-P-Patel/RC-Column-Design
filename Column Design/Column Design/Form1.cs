@@ -13,6 +13,8 @@ using Oasys.AdSec.Reinforcement.Layers;
 using Oasys.Profiles;
 using UnitsNet;
 using Oasys.Units;
+using System.Drawing;
+using System.IO;
 
 namespace Column_Design
 {
@@ -20,6 +22,7 @@ namespace Column_Design
     {
         public string columnLabel;
         public string story;
+        public double story_elevation;
         public string location;
         public double fck;
         public double depth;
@@ -70,6 +73,7 @@ namespace Column_Design
         public double spacingAlongDepth;
         public double spacingAlongWidth;
         public double ptProvided;
+        public double tensile_rebar;
         public String rebarDescription;
     }
 
@@ -125,53 +129,96 @@ namespace Column_Design
         public List<ColumnShearData> columnShearData = new List<ColumnShearData>();
         public List<ColumnForceData> columnForceData = new List<ColumnForceData>();
         public List<DesignDataToExcel> designDataToExcel = new List<DesignDataToExcel>();
-        public List<String> uniqueStories = new List<String>();
-        public List<String> uniqueColumnLabels = new List<String>();
+        public List<string> uniqueStories = new List<String>();
+        public List<string> uniqueColumnLabels = new List<String>();
 
         public IAdSec adsecApp = IAdSec.Create(IS456.Edition_2000);
         public ISection section = null;
         public ISolution solution = null;
         public List<ILineGroup> lineGroups = new List<ILineGroup>();
 
+        public static class ResultTableColumnIndex
+        {
+            public static int column_label = 0;
+            public static int story = 1;
+            public static int story_elevation = 2;
+            public static int location = 3;
+            public static int fck = 4;
+            public static int depth = 5;
+            public static int width = 6;
+            public static int length = 7;
+            public static int load_combination = 8;
+            public static int p = 9;
+            public static int m33 = 10;
+            public static int m22 = 11;
+            public static int load_util = 12;
+            public static int m_ratio = 13;
+            public static int etabs_req = 14;
+            public static int adsec_pro = 15;
+            public static int tensile_rebar = 16;
+            public static int rebar_description = 17;
+            public static int vy = 18;
+            public static int vx = 19;
+            public static int asvy = 20;
+            public static int asvx = 21;
+            public static int tauc = 22;
+            public static int tauvy = 23;
+            public static int tauvx = 24;
+            public static int max_nc = 25;
+            public static int max_c = 26;
+            public static int ash_req = 27;
+        }
+
         public ColumnDesignForm()
         {
             InitializeComponent();
-            this.columnsToShow.Items.Add("Story");
-            this.columnsToShow.Items.Add("Location");
-            this.columnsToShow.Items.Add("fck");
-            this.columnsToShow.Items.Add("Depth");
-            this.columnsToShow.Items.Add("Width");
-            this.columnsToShow.Items.Add("Length");
-            this.columnsToShow.Items.Add("Load Combination");
-            this.columnsToShow.Items.Add("P");
-            this.columnsToShow.Items.Add("MMajor");
-            this.columnsToShow.Items.Add("MMinor");
-            this.columnsToShow.Items.Add("Lutil");
-            this.columnsToShow.Items.Add("MUtil");
-            this.columnsToShow.Items.Add("RebarDesc");
-            this.columnsToShow.Items.Add("AdSecPt");
-            this.columnsToShow.Items.Add("ETABSPt");
-            this.columnsToShow.Items.Add("Vy");
-            this.columnsToShow.Items.Add("Vx");
-            this.columnsToShow.Items.Add("AsvY");
-            this.columnsToShow.Items.Add("AsvX");
-            this.columnsToShow.Items.Add("TauC");
-            this.columnsToShow.Items.Add("TauVY");
-            this.columnsToShow.Items.Add("TauVX");
-            this.columnsToShow.Items.Add("maxNC");
-            this.columnsToShow.Items.Add("maxC");
-            this.columnsToShow.Items.Add("minAsh");
+            columnsToShow.Items.Add("Column Label");
+            columnsToShow.Items.Add("Story");
+            columnsToShow.Items.Add("Story Elevation");
+            columnsToShow.Items.Add("Location");
+            columnsToShow.Items.Add("Fck");
+            columnsToShow.Items.Add("Depth");
+            columnsToShow.Items.Add("Width");
+            columnsToShow.Items.Add("Length");
+            columnsToShow.Items.Add("Load Combination");
+            columnsToShow.Items.Add("P");
+            columnsToShow.Items.Add("M33");
+            columnsToShow.Items.Add("M22");
+            columnsToShow.Items.Add("Load Utilisation");
+            columnsToShow.Items.Add("M/Mu");
+            columnsToShow.Items.Add("Rebar Required - ETABS");
+            columnsToShow.Items.Add("Rebar Provided - AdSec");
+            columnsToShow.Items.Add("Tensile Rebar");
+            columnsToShow.Items.Add("Rebar Description");
+            columnsToShow.Items.Add("Vy");
+            columnsToShow.Items.Add("Vx");
+            columnsToShow.Items.Add("Asvy");
+            columnsToShow.Items.Add("Asvx");
+            columnsToShow.Items.Add("TauC");
+            columnsToShow.Items.Add("TauVY");
+            columnsToShow.Items.Add("TauVX");
+            columnsToShow.Items.Add("Max NC Spacing");
+            columnsToShow.Items.Add("Max C Spacing");
+            columnsToShow.Items.Add("Ash Required");
             for(int i=0; i< this.columnsToShow.Items.Count; i++)
             {
-                this.columnsToShow.SetItemChecked(i, true);
+                if(columnsToShow.Items[i].ToString() != "Story Elevation")
+                {
+                    columnsToShow.SetItemChecked(i, true);
+                }
+                else
+                {
+                    columnsToShow.SetItemChecked(i, false);
+                }
             }
+            ResultsTable.Columns[ResultTableColumnIndex.story_elevation].Visible = false;
+            Include16mmBar.Checked = true;
+            Include20mmBar.Checked = true;
+            Include25mmBar.Checked = true;
+            Include32mmBar.Checked = true;
+            UniformRebar.Checked = true;
 
-            this.minEccOverride.Items.Add("ecc. major (mm)");
-            this.minEccOverride.Items.Add("ecc. minor (mm)");
-            for (int i = 0; i < this.minEccOverride.Items.Count; i++)
-            {
-                this.minEccOverride.SetItemChecked(i, false);
-            }
+            IncreaseTauC.Checked = true;
         }
 
         public void ExtractEtabsForceTables(Excel.Workbook excelWorkBook)
@@ -213,17 +260,38 @@ namespace Column_Design
             {
                 if (sheet.Name == "Concrete Column PMM Envelope")
                 {
-                    sheet.UsedRange.ClearContents();
+                    if(sheet.UsedRange.Rows.Count > 3)
+                    {
+                        sheet.Range[
+                            sheet.Cells[4,1], sheet.Cells[sheet.UsedRange.Rows.Count, sheet.UsedRange.Columns.Count]].
+                            ClearContents();
+                    }
+
+                    //sheet.UsedRange.ClearContents();
                     designInputSheet = sheet;
                 }
                 else if (sheet.Name == "Concrete Column Shear Envelope")
                 {
-                    sheet.UsedRange.ClearContents();
+                    if (sheet.UsedRange.Rows.Count > 3)
+                    {
+                        sheet.Range[
+                            sheet.Cells[4, 1], sheet.Cells[sheet.UsedRange.Rows.Count, sheet.UsedRange.Columns.Count]].
+                            ClearContents();
+                    }
+
+                    //sheet.UsedRange.ClearContents();
                     columnShearSheet = sheet;
                 }
                 else if (sheet.Name == "Column Forces")
                 {
-                    sheet.UsedRange.ClearContents();
+                    if (sheet.UsedRange.Rows.Count > 3)
+                    {
+                        sheet.Range[
+                            sheet.Cells[4, 1], sheet.Cells[sheet.UsedRange.Rows.Count, sheet.UsedRange.Columns.Count]].
+                            ClearContents();
+                    }
+
+                    //sheet.UsedRange.ClearContents();
                     columnForcesSheet = sheet;
                 }
                 else if (sheet.Name == "Read Me")
@@ -358,7 +426,7 @@ namespace Column_Design
                     labelIndex = i;
                 }
 
-                designInputSheet.Cells[2, i+1].Value2 = PMMFieldsKeysIncluded[i];
+                //designInputSheet.Cells[2, i+1].Value2 = PMMFieldsKeysIncluded[i];
             }
 
             int row = 3;
@@ -373,15 +441,15 @@ namespace Column_Design
                 }
                 if (i % PMMFieldsKeysIncluded.Length == sectionPropertyIndex)
                 {
-                    if(!dimHeadingsAdded)
-                    {
-                        designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 1].Value2 = "Depth";
-                        designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 2].Value2 = "Width";
-                        designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 3].Value2 = "Diameter";
-                        designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 4].Value2 = "fck";
-                        designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 5].Value2 = "Length";
-                        dimHeadingsAdded = true;
-                    }
+                    //if(!dimHeadingsAdded)
+                    //{
+                    //    designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 1].Value2 = "Depth";
+                    //    designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 2].Value2 = "Width";
+                    //    designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 3].Value2 = "Diameter";
+                    //    designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 4].Value2 = "fck";
+                    //    designInputSheet.Cells[2, PMMFieldsKeysIncluded.Length + 5].Value2 = "Length";
+                    //    dimHeadingsAdded = true;
+                    //}
 
                     string FileName = "";
                     string MatProp = "";
@@ -430,10 +498,10 @@ namespace Column_Design
                 column++;
             }
 
-            for (int i = 0; i < SFFieldsKeysIncluded.Length; i++)
-            {
-                columnShearSheet.Cells[2, i + 1].Value2 = SFFieldsKeysIncluded[i];
-            }
+            //for (int i = 0; i < SFFieldsKeysIncluded.Length; i++)
+            //{
+            //    columnShearSheet.Cells[2, i + 1].Value2 = SFFieldsKeysIncluded[i];
+            //}
 
             row = 3;
             column = 1;
@@ -449,10 +517,10 @@ namespace Column_Design
                 column++;
             }
 
-            for (int i = 0; i < CFFieldsKeysIncluded.Length; i++)
-            {
-                columnForcesSheet.Cells[2, i + 1].Value2 = CFFieldsKeysIncluded[i];
-            }
+            //for (int i = 0; i < CFFieldsKeysIncluded.Length; i++)
+            //{
+            //    columnForcesSheet.Cells[2, i + 1].Value2 = CFFieldsKeysIncluded[i];
+            //}
 
             row = 3;
             column = 1;
@@ -479,6 +547,10 @@ namespace Column_Design
 
         private void extractInput_Click(object sender, EventArgs e)
         {
+            ResultsTable.Rows.Clear();
+            columnsToDesign.Items.Clear();
+            DesignStories.Items.Clear();
+
             Excel.Application excelApplication = null;
             Excel.Workbook excelWorkBook = null;
             Excel.Worksheet designInputSheet = null;
@@ -487,24 +559,11 @@ namespace Column_Design
 
             excelApplication = new Excel.Application();
             excelApplication.Visible = true;
-            string @excelPath = this.designInput.Text;
+            string @excelPath = designInput.Text;
             excelWorkBook = excelApplication.Workbooks.Open(excelPath);
-
-            foreach (Excel.Worksheet sheet in excelWorkBook.Sheets)
-            {
-                if (sheet.Name == "Concrete Column PMM Envelope")
-                {
-                    designInputSheet = sheet;
-                }
-                else if (sheet.Name == "Concrete Column Shear Envelope")
-                {
-                    columnShearSheet = sheet;
-                }
-                else if (sheet.Name == "Column Forces")
-                {
-                    columnForcesSheet = sheet;
-                }
-            }
+            designInputSheet = excelWorkBook.Worksheets["Concrete Column PMM Envelope"];
+            columnShearSheet = excelWorkBook.Worksheets["Concrete Column Shear Envelope"];
+            columnForcesSheet = excelWorkBook.Worksheets["Column Forces"];
 
             object[,] columnPMMDataObject = designInputSheet.UsedRange.Value2;
             List<string> columnsLabels = new List<string>();
@@ -521,6 +580,7 @@ namespace Column_Design
             int fckIndex = 0;
             int lengthIndex = 0;
             int govComboIndex = 0;
+            int storyElevationIndex = 0;
             for (int column = 1; column <= designInputSheet.UsedRange.Columns.Count; column++)
             {
                 if (column > 15)
@@ -583,6 +643,10 @@ namespace Column_Design
                 {
                     govComboIndex = column;
                 }
+                else if (designInputSheet.Cells[2, column].Value2 == "Story Elevation")
+                {
+                    storyElevationIndex = column;
+                }
             }
 
             for (int row = 4; row <= designInputSheet.UsedRange.Rows.Count; row++)
@@ -607,6 +671,7 @@ namespace Column_Design
                 var thisColumnInputData = new ColumnInputData();
                 thisColumnInputData.columnLabel = (string)columnPMMDataObject[row, columnIndex];
                 thisColumnInputData.story = (string)columnPMMDataObject[row, storyIndex];
+                thisColumnInputData.story_elevation = (double)columnPMMDataObject[row, storyElevationIndex];
                 thisColumnInputData.location = (string)columnPMMDataObject[row, locationIndex];
                 thisColumnInputData.fck = (double)columnPMMDataObject[row, fckIndex];
                 thisColumnInputData.depth = (double)columnPMMDataObject[row, depthIndex];
@@ -618,12 +683,19 @@ namespace Column_Design
                 thisColumnInputData.length = (double)columnPMMDataObject[row, lengthIndex];
                 thisColumnInputData.governingCombo = ((string)columnPMMDataObject[row, govComboIndex]).Replace(" ", "");
                 double givenPtRequired = 0;
-                String numberFormat = designInputSheet.Cells[row, ptRequiredIndex].NumberFormat;
+                string numberFormat = designInputSheet.Cells[row, ptRequiredIndex].NumberFormat;
                 if (numberFormat.Contains('%'))
                 {
-                    givenPtRequired = columnPMMDataObject[row, ptRequiredIndex] != null ?
-                        (double)columnPMMDataObject[row, ptRequiredIndex] * 100 :
-                        0;
+                    if(columnPMMDataObject[row, ptRequiredIndex] is double)
+                    {
+                        givenPtRequired = columnPMMDataObject[row, ptRequiredIndex] != null ?
+                            (double)columnPMMDataObject[row, ptRequiredIndex] * 100 :
+                            0;
+                    }
+                    else
+                    {
+                        givenPtRequired = 0;
+                    }
                 }
                 else
                 {
@@ -639,7 +711,7 @@ namespace Column_Design
 
             foreach (string columnLabel in columnsLabels.Distinct().ToList())
             {
-                this.columnsToDesign.Items.Add(columnLabel);
+                columnsToDesign.Items.Add(columnLabel);
             }
 
             int vMajorIndex = 0;
@@ -789,10 +861,8 @@ namespace Column_Design
 
         private void columnsToDesign_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.storyName.Items.Clear();
-            this.storiesToDesign.Items.Clear();
+            DesignStories.Items.Clear();
             this.maxEtabsRebarPt.Text = "";
-            this.ResultsTable.Rows.Clear();
 
             List<string> storyNames = new List<string>();
             foreach (var thisColumnInputData in columnInputData.Where(
@@ -800,11 +870,11 @@ namespace Column_Design
             {
                 storyNames.Add(thisColumnInputData.story);
             }
-            
-            this.storyName.Items.Add("All stories");
+
+            DesignStories.Items.Add("All stories");
             foreach (string storyName in storyNames.Distinct().ToList())
             {
-                this.storyName.Items.Add(storyName);
+                DesignStories.Items.Add(storyName);
             }
         }
 
@@ -1282,9 +1352,9 @@ namespace Column_Design
 
         private void analyse_Click(object sender, EventArgs e)
         {
-            for (int i=0; i< this.ResultsTable.Rows.Count-1; i++)
+            for (int i = 0; i < ResultsTable.Rows.Count - 1; i++)
             {
-                section.Material = GetSectionMaterial((double)this.ResultsTable.Rows[i].Cells[2].Value);
+                section.Material = GetSectionMaterial((double)ResultsTable.Rows[i].Cells[2].Value);
                 section.ReinforcementGroups.Clear();
 
                 double linkMaterial = Double.Parse(this.givenLinkFy.Text);
@@ -1381,9 +1451,9 @@ namespace Column_Design
                     ((Oasys.Profiles.IRectangleProfile)section.Profile).Depth.Millimeters /
                     ((Oasys.Profiles.IRectangleProfile)section.Profile).Width.Millimeters;
 
-                double axialAdSec = -1 * (double)this.ResultsTable.Rows[i].Cells[2].Value;
-                double mMajorAdSec = (double)this.ResultsTable.Rows[i].Cells[3].Value;
-                double mMinorAdSec = (double)this.ResultsTable.Rows[i].Cells[4].Value;
+                double axialAdSec = -1 * (double)ResultsTable.Rows[i].Cells[2].Value;
+                double mMajorAdSec = (double)ResultsTable.Rows[i].Cells[3].Value;
+                double mMinorAdSec = (double)ResultsTable.Rows[i].Cells[4].Value;
                 var adSecLoad = ILoad.Create(
                     Force.FromKilonewtons(axialAdSec),
                     Moment.FromKilonewtonMeters(mMajorAdSec),
@@ -1392,16 +1462,16 @@ namespace Column_Design
                 var strengthResult = solution.Strength.Check(adSecLoad);
                 var momentRanges = strengthResult.MomentRanges;
                 double ultimateMoment = 0;
-                for(int j=0; j< momentRanges.Count; j++)
+                for (int j = 0; j < momentRanges.Count; j++)
                 {
                     ultimateMoment = Math.Max(momentRanges[j].Max.KilonewtonMeters, ultimateMoment);
                 }
                 double appliedMoment = Math.Sqrt(Math.Pow(mMajorAdSec, 2) + Math.Pow(mMinorAdSec, 2));
                 double momentRatio = appliedMoment / ultimateMoment;
-                this.ResultsTable.Rows[i].Cells[5].Value = Math.Round(strengthResult.LoadUtilisation.DecimalFractions,2);
-                this.ResultsTable.Rows[i].Cells[6].Value = Math.Round(momentRatio,2);
-                this.ResultsTable.Rows[i].Cells[8].Value = Math.Round(rebarPtAdSec, 3);
-                this.ResultsTable.Rows[i].Cells[7].Value = "";
+                ResultsTable.Rows[i].Cells[5].Value = Math.Round(strengthResult.LoadUtilisation.DecimalFractions, 2);
+                ResultsTable.Rows[i].Cells[6].Value = Math.Round(momentRatio, 2);
+                ResultsTable.Rows[i].Cells[8].Value = Math.Round(rebarPtAdSec, 3);
+                ResultsTable.Rows[i].Cells[7].Value = "";
             }
         }
 
@@ -1434,7 +1504,7 @@ namespace Column_Design
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if(this.lineGroupsAdded.Items.Count != 1)
+            if (this.lineGroupsAdded.Items.Count != 1)
             {
                 lineGroups.Remove(lineGroups[this.lineGroupsAdded.SelectedIndex]);
                 this.lineGroupsAdded.Items.Remove(this.lineGroupsAdded.SelectedItem);
@@ -1449,6 +1519,9 @@ namespace Column_Design
 
         private void addToExcel_Click(object sender, EventArgs e)
         {
+            if (designDataToExcel.Count < 1)
+                return;
+
             Excel.Application excelApplication = null;
             Excel.Workbook excelWorkBook = null;
             Excel.Worksheet designOutputSheet = null;
@@ -1457,46 +1530,82 @@ namespace Column_Design
             excelApplication.Visible = true;
             string @excelPath = this.designInput.Text;
             excelWorkBook = excelApplication.Workbooks.Open(excelPath);
-
-            foreach (Excel.Worksheet sheet in excelWorkBook.Sheets)
-            {
-                if (sheet.Name == "AdSec Results")
-                {
-                    designOutputSheet = sheet;
-                    break;
-                }
-            }
+            designOutputSheet = excelWorkBook.Worksheets["Reinforcement Schedule"];
             int startRow = designOutputSheet.UsedRange.Rows.Count + 1;
 
-            for (int i = 0; i < this.ResultsTable.Rows.Count-1; i++)
+            for (int i = 0; i < ResultsTable.Rows.Count-1; i++)
             {
-                designOutputSheet.Cells[startRow, 1].Value2 = this.columnsToDesign.Text;
-                designOutputSheet.Cells[startRow, 2].Value2 = (string)this.ResultsTable.Rows[i].Cells[0].Value;
-                designOutputSheet.Cells[startRow, 3].Value2 = (string)this.ResultsTable.Rows[i].Cells[1].Value;
-                designOutputSheet.Cells[startRow, 4].Value2 = (double)this.ResultsTable.Rows[i].Cells[3].Value;
-                designOutputSheet.Cells[startRow, 5].Value2 = (double)this.ResultsTable.Rows[i].Cells[4].Value;
+                designOutputSheet.Cells[startRow, 1].Value2 = (string)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.column_label].Value;
+                designOutputSheet.Cells[startRow, 2].Value2 = (string)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.story].Value;
+                designOutputSheet.Cells[startRow, 3].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.story_elevation].Value;
+                designOutputSheet.Cells[startRow, 4].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.depth].Value;
+                designOutputSheet.Cells[startRow, 5].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.width].Value;
                 designOutputSheet.Cells[startRow, 6].Value2 = 0;
-                designOutputSheet.Cells[startRow, 7].Value2 = (double)this.ResultsTable.Rows[i].Cells[2].Value;
-                designOutputSheet.Cells[startRow, 8].Value2 = (double)this.ResultsTable.Rows[i].Cells[7].Value;
-                designOutputSheet.Cells[startRow, 9].Value2 = (double)this.ResultsTable.Rows[i].Cells[8].Value;
-                designOutputSheet.Cells[startRow, 10].Value2 = (double)this.ResultsTable.Rows[i].Cells[9].Value;
-                designOutputSheet.Cells[startRow, 11].Value2 = (double)ResultsTable.Rows[i].Cells[10].Value;
-                designOutputSheet.Cells[startRow, 12].Value2 = (double)ResultsTable.Rows[i].Cells[11].Value;
-                designOutputSheet.Cells[startRow, 13].Value2 = (double)this.ResultsTable.Rows[i].Cells[14].Value;
-                designOutputSheet.Cells[startRow, 14].Value2 = this.maxEtabsRebarPt.Text;
-                designOutputSheet.Cells[startRow, 15].Value2 = (double)this.ResultsTable.Rows[i].Cells[13].Value;
-                designOutputSheet.Cells[startRow, 16].Value2 = (string)this.ResultsTable.Rows[i].Cells[12].Value;
+                designOutputSheet.Cells[startRow, 7].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.fck].Value;
+                designOutputSheet.Cells[startRow, 8].Value2 = double.Parse(rebarCover.Text);
+                designOutputSheet.Cells[startRow, 9].Value2 = (string)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.rebar_description].Value;
+                designOutputSheet.Cells[startRow, 10].Value2 = "T" + this.linkDia.Text + "-" + this.nonConfiningSpacing.Text + "mm";
+                designOutputSheet.Cells[startRow, 11].Value2 = "T" + this.linkDia.Text + "-" + this.confiningSpacing.Text + "mm";
+                designOutputSheet.Cells[startRow, 12].Value2 = designDataToExcel[i].legsAlongY;
+                designOutputSheet.Cells[startRow, 13].Value2 = designDataToExcel[i].legsAlongX;
+                designOutputSheet.Cells[startRow, 14].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.p].Value;
+                designOutputSheet.Cells[startRow, 15].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.m33].Value;
+                designOutputSheet.Cells[startRow, 16].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.m22].Value;
+                designOutputSheet.Cells[startRow, 17].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.etabs_req].Value;
+                designOutputSheet.Cells[startRow, 18].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.adsec_pro].Value;
+                designOutputSheet.Cells[startRow, 19].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.load_util].Value;
+                designOutputSheet.Cells[startRow, 20].Value2 = (double)ResultsTable.Rows[i].Cells[ResultTableColumnIndex.m_ratio].Value;
                 startRow += 1;
             }
 
-            for (int i = 0; i < this.designDataToExcel.Count; i++)
+            for (int i = 0; i < designDataToExcel.Count; i++)
             {
                 var givenDesignData = designDataToExcel[i];
-                string columnID = givenDesignData.inputData.columnLabel + " "
-                    + givenDesignData.inputData.story;
+                string columnID = givenDesignData.inputData.columnLabel + " " + givenDesignData.inputData.story;
+
+                var appliedLoads = Oasys.Collections.IList<ILoad>.Create();
+
+                appliedLoads.Add(ILoad.Create(
+                    Force.FromKilonewtons(-1 * givenDesignData.inputData.P),
+                    Moment.FromKilonewtonMeters(givenDesignData.inputData.MMajor),
+                    Moment.FromKilonewtonMeters(givenDesignData.inputData.MMinor)));
+
+                foreach (var load in givenDesignData.checkedMajorEccentricLoads)
+                {
+                    appliedLoads.Add(load);
+                }
+                foreach (var load in givenDesignData.checkedMinorEccentricLoads)
+                {
+                    appliedLoads.Add(load);
+                }
+                foreach (var load in givenDesignData.checkedOtherLoads)
+                {
+                    appliedLoads.Add(load);
+                }
+
+                var jsonConverter = new Oasys.AdSec.IO.Serialization.JsonConverter(IS456.Edition_2000);
+                var jsonString = jsonConverter.SectionToJson(givenDesignData.designSection, appliedLoads);
+                string @excelFilePath = this.designInput.Text;
+                string directoryName = Path.GetDirectoryName(excelFilePath);
+                if (!Directory.Exists(Path.Combine(directoryName, "AdSec"))) Directory.CreateDirectory(Path.Combine(directoryName, "AdSec"));
+                string adsecFilePath = Path.Combine(directoryName,"AdSec", columnID + ".ads");
+
+                if (File.Exists(adsecFilePath))
+                {
+                    File.Delete(adsecFilePath);
+
+                    excelApplication.DisplayAlerts = false;
+                    excelWorkBook.Worksheets[columnID + " IS456"].Delete();
+                    excelWorkBook.Worksheets[columnID + " IS13920"].Delete();
+                    excelApplication.DisplayAlerts = true;
+                }
+
+                File.WriteAllText(adsecFilePath, jsonString);
+
 
                 Excel.Worksheet shearCalcIS456Sheet = excelWorkBook.Sheets.Add(
-                    excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing, Type.Missing);
+                    Type.Missing, excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing);
+
                 shearCalcIS456Sheet.Name = columnID + " IS456";
                 shearCalcIS456Sheet.Cells[2, 3].Value2 = "SHEAR REINFORCEMENT FOR RC COLUMNS";
                 shearCalcIS456Sheet.Cells[4, 3].Value2 = "As per IS456:2000";
@@ -1504,129 +1613,154 @@ namespace Column_Design
                 shearCalcIS456Sheet.Cells[8, 3].Value2 = givenDesignData.inputData.columnLabel;
                 shearCalcIS456Sheet.Cells[8, 4].Value2 = givenDesignData.inputData.story;
                 shearCalcIS456Sheet.Cells[10, 3].Value2 = "Factored shear force (along X)";
-                shearCalcIS456Sheet.Cells[10, 5].Value2 = givenDesignData.factoredShearForceAlongX;
-                shearCalcIS456Sheet.Cells[10, 6].Value2 = "kN";
+                shearCalcIS456Sheet.Cells[10, 4].Value2 = givenDesignData.factoredShearForceAlongX;
+                shearCalcIS456Sheet.Cells[10, 5].Value2 = "kN";
                 shearCalcIS456Sheet.Cells[11, 3].Value2 = "Factored shear force (along Y)";
-                shearCalcIS456Sheet.Cells[11, 5].Value2 = givenDesignData.factoredShearForceAlongY;
-                shearCalcIS456Sheet.Cells[11, 6].Value2 = "kN";
-                shearCalcIS456Sheet.Cells[12, 4].Value2 = "B";
-                shearCalcIS456Sheet.Cells[12, 5].Value2 = givenDesignData.inputData.width;
-                shearCalcIS456Sheet.Cells[12, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[13, 4].Value2 = "D";
-                shearCalcIS456Sheet.Cells[13, 5].Value2 = givenDesignData.inputData.depth;
-                shearCalcIS456Sheet.Cells[13, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[14, 4].Value2 = "Clear cover";
-                shearCalcIS456Sheet.Cells[14, 5].Value2 = givenDesignData.clearCover;
-                shearCalcIS456Sheet.Cells[14, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[15, 4].Value2 = "Dia of corner longitudinal bar";
-                shearCalcIS456Sheet.Cells[15, 5].Value2 = givenDesignData.DesignData.cornerBarDia;
-                shearCalcIS456Sheet.Cells[15, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[16, 4].Value2 = "Dia of centre longitudinal bar";
-                shearCalcIS456Sheet.Cells[16, 5].Value2 = givenDesignData.DesignData.centreBarDia;
-                shearCalcIS456Sheet.Cells[16, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[17, 4].Value2 = "b";
-                shearCalcIS456Sheet.Cells[17, 5].Value2 = givenDesignData.effectiveWidth;
-                shearCalcIS456Sheet.Cells[17, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[18, 4].Value2 = "d";
-                shearCalcIS456Sheet.Cells[18, 5].Value2 = givenDesignData.effectiveDepth;
-                shearCalcIS456Sheet.Cells[18, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[19, 4].Value2 = "tau v (along X)";
-                shearCalcIS456Sheet.Cells[19, 5].Value2 = givenDesignData.tauVAlongX;
-                shearCalcIS456Sheet.Cells[19, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[20, 4].Value2 = "tau v (along Y)";
-                shearCalcIS456Sheet.Cells[20, 5].Value2 = givenDesignData.tauVAlongY;
-                shearCalcIS456Sheet.Cells[20, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[22, 4].Value2 = "tau c max";
-                shearCalcIS456Sheet.Cells[22, 5].Value2 = givenDesignData.tauCMax;
-                shearCalcIS456Sheet.Cells[22, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[22, 7].Value2 = "Check IS456:2000";
-                shearCalcIS456Sheet.Cells[24, 4].Value2 = "Pst";
-                shearCalcIS456Sheet.Cells[24, 5].Value2 = givenDesignData.DesignData.ptProvided;
-                shearCalcIS456Sheet.Cells[24, 6].Value2 = "%";
-                shearCalcIS456Sheet.Cells[24, 7].Value2 = "Check your design";
-                shearCalcIS456Sheet.Cells[25, 4].Value2 = "fck";
-                shearCalcIS456Sheet.Cells[25, 5].Value2 = givenDesignData.inputData.fck;
-                shearCalcIS456Sheet.Cells[25, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[25, 7].Value2 = "Check your design";
-                shearCalcIS456Sheet.Cells[27, 4].Value2 = "tau c";
-                shearCalcIS456Sheet.Cells[27, 5].Value2 = givenDesignData.tauC;
-                shearCalcIS456Sheet.Cells[27, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[27, 7].Value2 = "Check IS456:2000";
-                shearCalcIS456Sheet.Cells[29, 5].Value2 =
+                shearCalcIS456Sheet.Cells[11, 4].Value2 = givenDesignData.factoredShearForceAlongY;
+                shearCalcIS456Sheet.Cells[11, 5].Value2 = "kN";
+                shearCalcIS456Sheet.Cells[12, 3].Value2 = "B";
+                shearCalcIS456Sheet.Cells[12, 4].Value2 = givenDesignData.inputData.width;
+                shearCalcIS456Sheet.Cells[12, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[13, 3].Value2 = "D";
+                shearCalcIS456Sheet.Cells[13, 4].Value2 = givenDesignData.inputData.depth;
+                shearCalcIS456Sheet.Cells[13, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[14, 3].Value2 = "Clear cover";
+                shearCalcIS456Sheet.Cells[14, 4].Value2 = givenDesignData.clearCover;
+                shearCalcIS456Sheet.Cells[14, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[15, 3].Value2 = "Dia of corner longitudinal bar";
+                shearCalcIS456Sheet.Cells[15, 4].Value2 = givenDesignData.DesignData.cornerBarDia;
+                shearCalcIS456Sheet.Cells[15, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[16, 3].Value2 = "Dia of centre longitudinal bar";
+                shearCalcIS456Sheet.Cells[16, 4].Value2 = givenDesignData.DesignData.centreBarDia;
+                shearCalcIS456Sheet.Cells[16, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[17, 3].Value2 = "b";
+                shearCalcIS456Sheet.Cells[17, 4].Value2 = givenDesignData.effectiveWidth;
+                shearCalcIS456Sheet.Cells[17, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[18, 3].Value2 = "d";
+                shearCalcIS456Sheet.Cells[18, 4].Value2 = givenDesignData.effectiveDepth;
+                shearCalcIS456Sheet.Cells[18, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[19, 3].Value2 = "tau v (along X)";
+                shearCalcIS456Sheet.Cells[19, 4].Value2 = givenDesignData.tauVAlongX;
+                shearCalcIS456Sheet.Cells[19, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[19, 6].Value2 = "cl. 40.1";
+                shearCalcIS456Sheet.Cells[20, 3].Value2 = "tau v (along Y)";
+                shearCalcIS456Sheet.Cells[20, 4].Value2 = givenDesignData.tauVAlongY;
+                shearCalcIS456Sheet.Cells[20, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[20, 6].Value2 = "cl. 40.1";
+                shearCalcIS456Sheet.Cells[22, 3].Value2 = "tau c max";
+                shearCalcIS456Sheet.Cells[22, 4].Value2 = givenDesignData.tauCMax;
+                shearCalcIS456Sheet.Cells[22, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[22, 6].Value2 = "Table 20";
+                shearCalcIS456Sheet.Cells[23, 3].Value2 = "Pt";
+                shearCalcIS456Sheet.Cells[23, 4].Value2 = Math.Round(givenDesignData.DesignData.ptProvided, 2);
+                shearCalcIS456Sheet.Cells[23, 5].Value2 = "%";
+                shearCalcIS456Sheet.Cells[23, 6].Value2 = "Check 'Reinforcement Schedule' sheet";
+                shearCalcIS456Sheet.Cells[24, 3].Value2 = "Tensile Rebar";
+                shearCalcIS456Sheet.Cells[24, 4].Value2 = Math.Round(givenDesignData.DesignData.tensile_rebar, 2);
+                shearCalcIS456Sheet.Cells[24, 5].Value2 = "%";
+                shearCalcIS456Sheet.Cells[24, 6].Value2 = "Check 'Reinforcement Schedule' sheet";
+                shearCalcIS456Sheet.Cells[25, 3].Value2 = "fck";
+                shearCalcIS456Sheet.Cells[25, 4].Value2 = givenDesignData.inputData.fck;
+                shearCalcIS456Sheet.Cells[25, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[27, 3].Value2 = "tau c";
+                shearCalcIS456Sheet.Cells[27, 4].Value2 = givenDesignData.tauC;
+                shearCalcIS456Sheet.Cells[27, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[27, 6].Value2 = IncreaseTauC.Checked ?
+                    "Considering increased shear strength from Table 19 as per cl.40.2.2" :
+                    "Table 19";
+                shearCalcIS456Sheet.Cells[29, 4].Value2 =
                     Math.Max(givenDesignData.tauVAlongX, givenDesignData.tauVAlongY) > givenDesignData.tauC ?
                     "Shear reinforcement needed" :
                     "Shear reinforcement not needed, provide minimum shear reinforcement";
-                shearCalcIS456Sheet.Cells[31, 4].Value2 = "Vus (along X)";
-                shearCalcIS456Sheet.Cells[31, 5].Value2 = givenDesignData.VusAlongX;
-                shearCalcIS456Sheet.Cells[31, 6].Value2 = "kN";
-                shearCalcIS456Sheet.Cells[32, 4].Value2 = "Vus (along Y)";
-                shearCalcIS456Sheet.Cells[32, 5].Value2 = givenDesignData.VusAlongY;
-                shearCalcIS456Sheet.Cells[32, 6].Value2 = "kN";
-                shearCalcIS456Sheet.Cells[34, 4].Value2 = "fy";
-                shearCalcIS456Sheet.Cells[34, 5].Value2 = givenDesignData.linkFy;
-                shearCalcIS456Sheet.Cells[34, 6].Value2 = "N/mm2";
-                shearCalcIS456Sheet.Cells[35, 4].Value2 = "Dia of bar";
-                shearCalcIS456Sheet.Cells[35, 5].Value2 = givenDesignData.linkDia;
-                shearCalcIS456Sheet.Cells[35, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[36, 4].Value2 = "number of legs (along X)";
-                shearCalcIS456Sheet.Cells[36, 5].Value2 = givenDesignData.legsAlongX;
-                shearCalcIS456Sheet.Cells[37, 4].Value2 = "Asv (along X)";
-                shearCalcIS456Sheet.Cells[37, 5].Value2 = givenDesignData.asvProvidedAlongX;
-                shearCalcIS456Sheet.Cells[37, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[38, 4].Value2 = "number of legs (along Y)";
-                shearCalcIS456Sheet.Cells[38, 5].Value2 = givenDesignData.legsAlongY;
-                shearCalcIS456Sheet.Cells[39, 4].Value2 = "Asv (along Y)";
-                shearCalcIS456Sheet.Cells[39, 5].Value2 = givenDesignData.asvProvidedAlongY;
-                shearCalcIS456Sheet.Cells[39, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[41, 4].Value2 = "Sv required (cl. 40.4)";
-                shearCalcIS456Sheet.Cells[41, 5].Value2 = givenDesignData.nonConfiningSpacingOne;
-                shearCalcIS456Sheet.Cells[41, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[42, 4].Value2 = "Sv required (cl. 26.5.1.5)";
-                shearCalcIS456Sheet.Cells[42, 5].Value2 = givenDesignData.nonConfiningSpacingTwo;
-                shearCalcIS456Sheet.Cells[42, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[43, 4].Value2 = "Sv adopted";
-                shearCalcIS456Sheet.Cells[43, 5].Value2 = givenDesignData.nonConfiningSpacingProvided;
-                shearCalcIS456Sheet.Cells[43, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[44, 5].Value2 = 
-                    givenDesignData.nonConfiningSpacingProvided < 
-                    Math.Min(givenDesignData.nonConfiningSpacingOne, givenDesignData.nonConfiningSpacingTwo) ? "SPACING IS OK" : "SPACING IS NOT OK";
-                shearCalcIS456Sheet.Cells[46, 4].Value2 = "Minimum shear reinforcement (cl. 26.5.1.6)";
-                shearCalcIS456Sheet.Cells[46, 5].Value2 = givenDesignData.minNonConfiningAsvRequired;
-                shearCalcIS456Sheet.Cells[46, 6].Value2 = "mm2";
-                shearCalcIS456Sheet.Cells[47, 5].Value2 = 
-                    givenDesignData.minNonConfiningAsvRequired < 
-                    Math.Min(givenDesignData.legsAlongX * Math.PI * 0.25 * givenDesignData.linkDia * givenDesignData.linkDia, 
-                    givenDesignData.legsAlongY * Math.PI * 0.25 * givenDesignData.linkDia * givenDesignData.linkDia) ? "OK" : "NOT OK";
-                shearCalcIS456Sheet.Cells[49, 4].Value2 = "Hence provide";
-                shearCalcIS456Sheet.Cells[49, 5].Value2 = givenDesignData.linkDia;
-                shearCalcIS456Sheet.Cells[49, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[49, 7].Value2 = givenDesignData.legsAlongX;
-                shearCalcIS456Sheet.Cells[49, 8].Value2 = "legged stirrups along X @";
-                shearCalcIS456Sheet.Cells[49, 9].Value2 = givenDesignData.nonConfiningSpacingProvided;
-                shearCalcIS456Sheet.Cells[49, 10].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[49, 11].Value2 = "c/c";
-                shearCalcIS456Sheet.Cells[49, 12].Value2 = "in the non-confining zone";
-                shearCalcIS456Sheet.Cells[49, 13].Value2 = "As per IS456:2000";
-                shearCalcIS456Sheet.Cells[50, 4].Value2 = "Hence provide";
-                shearCalcIS456Sheet.Cells[50, 5].Value2 = givenDesignData.linkDia;
-                shearCalcIS456Sheet.Cells[50, 6].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[50, 7].Value2 = givenDesignData.legsAlongY;
-                shearCalcIS456Sheet.Cells[50, 8].Value2 = "legged stirrups along Y @";
-                shearCalcIS456Sheet.Cells[50, 9].Value2 = givenDesignData.nonConfiningSpacingProvided;
-                shearCalcIS456Sheet.Cells[50, 10].Value2 = "mm";
-                shearCalcIS456Sheet.Cells[50, 11].Value2 = "c/c";
-                shearCalcIS456Sheet.Cells[50, 12].Value2 = "in the non-confining zone";
-                shearCalcIS456Sheet.Cells[50, 13].Value2 = "As per IS456:2000";
+                shearCalcIS456Sheet.Cells[31, 3].Value2 = "Vus (along X)";
+                shearCalcIS456Sheet.Cells[31, 4].Value2 = givenDesignData.VusAlongX;
+                shearCalcIS456Sheet.Cells[31, 5].Value2 = "kN";
+                shearCalcIS456Sheet.Cells[31, 6].Value2 = "cl. 40.4";
+                shearCalcIS456Sheet.Cells[32, 3].Value2 = "Vus (along Y)";
+                shearCalcIS456Sheet.Cells[32, 4].Value2 = givenDesignData.VusAlongY;
+                shearCalcIS456Sheet.Cells[32, 5].Value2 = "kN";
+                shearCalcIS456Sheet.Cells[32, 6].Value2 = "cl. 40.4";
+                shearCalcIS456Sheet.Cells[34, 3].Value2 = "fy";
+                shearCalcIS456Sheet.Cells[34, 4].Value2 = givenDesignData.linkFy;
+                shearCalcIS456Sheet.Cells[34, 5].Value2 = "N/mm2";
+                shearCalcIS456Sheet.Cells[35, 3].Value2 = "Dia of transverse bar";
+                shearCalcIS456Sheet.Cells[35, 4].Value2 = givenDesignData.linkDia;
+                shearCalcIS456Sheet.Cells[35, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[36, 3].Value2 = "number of legs (along X)";
+                shearCalcIS456Sheet.Cells[36, 4].Value2 = givenDesignData.legsAlongX;
+                shearCalcIS456Sheet.Cells[37, 3].Value2 = "Asv (along X)";
+                shearCalcIS456Sheet.Cells[37, 4].Value2 = givenDesignData.asvProvidedAlongX;
+                shearCalcIS456Sheet.Cells[37, 5].Value2 = "mm2";
+                shearCalcIS456Sheet.Cells[38, 3].Value2 = "number of legs (along Y)";
+                shearCalcIS456Sheet.Cells[38, 4].Value2 = givenDesignData.legsAlongY;
+                shearCalcIS456Sheet.Cells[39, 3].Value2 = "Asv (along Y)";
+                shearCalcIS456Sheet.Cells[39, 4].Value2 = givenDesignData.asvProvidedAlongY;
+                shearCalcIS456Sheet.Cells[39, 5].Value2 = "mm2";
+                shearCalcIS456Sheet.Cells[41, 3].Value2 = "Sv required";
+                shearCalcIS456Sheet.Cells[41, 4].Value2 = givenDesignData.nonConfiningSpacingOne;
+                shearCalcIS456Sheet.Cells[41, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[41, 6].Value2 = "cl. 40.4 (a)";
+                shearCalcIS456Sheet.Cells[42, 3].Value2 = "Sv required";
+                shearCalcIS456Sheet.Cells[42, 4].Value2 = givenDesignData.nonConfiningSpacingTwo;
+                shearCalcIS456Sheet.Cells[42, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[42, 6].Value2 = "cl. 26.5.3.2 (c)";
+                shearCalcIS456Sheet.Cells[43, 3].Value2 = "Sv provided";
+                shearCalcIS456Sheet.Cells[43, 4].Value2 = givenDesignData.nonConfiningSpacingProvided;
+                shearCalcIS456Sheet.Cells[43, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[44, 4].Value2 =
+                    givenDesignData.nonConfiningSpacingOne > 0 ?
+                    givenDesignData.nonConfiningSpacingProvided <
+                    Math.Min(givenDesignData.nonConfiningSpacingOne, givenDesignData.nonConfiningSpacingTwo) ? "SPACING IS OK" : "SPACING IS NOT OK" :
+                    givenDesignData.nonConfiningSpacingProvided <
+                    givenDesignData.nonConfiningSpacingTwo ? "SPACING IS OK" : "SPACING IS NOT OK";
+                if ((string)shearCalcIS456Sheet.Cells[44, 4].Value2 == "SPACING IS NOT OK")
+                {
+                    shearCalcIS456Sheet.Cells[44, 4].Interior.Color = Color.Red;
+                    shearCalcIS456Sheet.Cells[44, 4].Font.Color = Color.White;
+                }
+                shearCalcIS456Sheet.Cells[46, 3].Value2 = "Minimum shear reinforcement";
+                shearCalcIS456Sheet.Cells[46, 4].Value2 = givenDesignData.minNonConfiningAsvRequired;
+                shearCalcIS456Sheet.Cells[46, 5].Value2 = "mm2";
+                shearCalcIS456Sheet.Cells[46, 6].Value2 = "cl. 26.5.1.6";
+                shearCalcIS456Sheet.Cells[47, 4].Value2 =
+                    givenDesignData.minNonConfiningAsvRequired <
+                    Math.Min(givenDesignData.legsAlongX * Math.PI * 0.25 * givenDesignData.linkDia * givenDesignData.linkDia,
+                    givenDesignData.legsAlongY * Math.PI * 0.25 * givenDesignData.linkDia * givenDesignData.linkDia) ? "AREA IS OK" : "AREA IS NOT OK";
+                if ((string)shearCalcIS456Sheet.Cells[47, 4].Value2 == "AREA IS NOT OK")
+                {
+                    shearCalcIS456Sheet.Cells[47, 4].Interior.Color = Color.Red;
+                    shearCalcIS456Sheet.Cells[47, 4].Font.Color = Color.White;
+                }
+                shearCalcIS456Sheet.Cells[49, 3].Value2 = "Hence provide";
+                shearCalcIS456Sheet.Cells[49, 4].Value2 = givenDesignData.linkDia;
+                shearCalcIS456Sheet.Cells[49, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[49, 6].Value2 = givenDesignData.legsAlongX;
+                shearCalcIS456Sheet.Cells[49, 7].Value2 = "legged stirrups along X @";
+                shearCalcIS456Sheet.Cells[49, 8].Value2 = givenDesignData.nonConfiningSpacingProvided;
+                shearCalcIS456Sheet.Cells[49, 9].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[49, 10].Value2 = "c/c";
+                shearCalcIS456Sheet.Cells[49, 11].Value2 = "in the non-confining zone";
+                shearCalcIS456Sheet.Cells[49, 12].Value2 = "As per IS456:2000";
+                shearCalcIS456Sheet.Cells[50, 3].Value2 = "Hence provide";
+                shearCalcIS456Sheet.Cells[50, 4].Value2 = givenDesignData.linkDia;
+                shearCalcIS456Sheet.Cells[50, 5].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[50, 6].Value2 = givenDesignData.legsAlongY;
+                shearCalcIS456Sheet.Cells[50, 7].Value2 = "legged stirrups along Y @";
+                shearCalcIS456Sheet.Cells[50, 8].Value2 = givenDesignData.nonConfiningSpacingProvided;
+                shearCalcIS456Sheet.Cells[50, 9].Value2 = "mm";
+                shearCalcIS456Sheet.Cells[50, 10].Value2 = "c/c";
+                shearCalcIS456Sheet.Cells[50, 11].Value2 = "in the non-confining zone";
+                shearCalcIS456Sheet.Cells[50, 12].Value2 = "As per IS456:2000";
 
                 Excel.Worksheet shearCalcIS13920Sheet = excelWorkBook.Sheets.Add(
-                    excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing, Type.Missing);
+                    Type.Missing, excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing);
                 shearCalcIS13920Sheet.Name = columnID + " IS13920";
                 shearCalcIS13920Sheet.Cells[2, 3].Value2 = "SHEAR REINFORCEMENT FOR RC COLUMNS";
                 shearCalcIS13920Sheet.Cells[4, 3].Value2 = "As per IS13920:2016";
                 shearCalcIS13920Sheet.Cells[6, 3].Value2 = "RECTANGULAR COLUMN";
                 shearCalcIS13920Sheet.Cells[8, 3].Value2 = givenDesignData.inputData.columnLabel;
                 shearCalcIS13920Sheet.Cells[8, 4].Value2 = givenDesignData.inputData.story;
-                shearCalcIS13920Sheet.Cells[10, 3].Value2 = "Spacing of confining reinforcement";
+                shearCalcIS13920Sheet.Cells[10, 3].Value2 = "Spacing of confining reinforcement (Sv)";
                 shearCalcIS13920Sheet.Cells[12, 3].Value2 = "B";
                 shearCalcIS13920Sheet.Cells[12, 4].Value2 = givenDesignData.inputData.width;
                 shearCalcIS13920Sheet.Cells[12, 5].Value2 = "mm";
@@ -1635,62 +1769,75 @@ namespace Column_Design
                 shearCalcIS13920Sheet.Cells[13, 5].Value2 = "mm";
                 shearCalcIS13920Sheet.Cells[14, 4].Value2 = givenDesignData.confinfingSpacingOne;
                 shearCalcIS13920Sheet.Cells[14, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[14, 6].Value2 = "As per IS13920:2016";
+                shearCalcIS13920Sheet.Cells[14, 6].Value2 = "cl. 7.6.1 (b) (1)";
                 shearCalcIS13920Sheet.Cells[16, 3].Value2 = "Smallest dia of longitudinal bar";
                 shearCalcIS13920Sheet.Cells[16, 4].Value2 = givenDesignData.DesignData.centreBarDia;
                 shearCalcIS13920Sheet.Cells[16, 5].Value2 = "mm";
                 shearCalcIS13920Sheet.Cells[17, 4].Value2 = givenDesignData.confinfingSpacingTwo;
                 shearCalcIS13920Sheet.Cells[17, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[17, 6].Value2 = "As per IS13920:2016";
+                shearCalcIS13920Sheet.Cells[17, 6].Value2 = "cl. 7.6.1 (b) (2)";
                 shearCalcIS13920Sheet.Cells[19, 4].Value2 = givenDesignData.confinfingSpacingThree;
                 shearCalcIS13920Sheet.Cells[19, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[19, 6].Value2 = "As per IS13920:2016";
-                shearCalcIS13920Sheet.Cells[21, 3].Value2 = "Maximum spacing of confining reinforcement";
+                shearCalcIS13920Sheet.Cells[19, 6].Value2 = "cl. 7.6.1 (b) (3)";
+                shearCalcIS13920Sheet.Cells[21, 3].Value2 = "Sv required";
                 shearCalcIS13920Sheet.Cells[21, 4].Value2 = givenDesignData.maxConfiningSpacingRequired;
                 shearCalcIS13920Sheet.Cells[21, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[23, 3].Value2 = "Assumed spacing of links (Sv)";
-                shearCalcIS13920Sheet.Cells[23, 4].Value2 = givenDesignData.confiningSpacingProvided;
-                shearCalcIS13920Sheet.Cells[23, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[24, 3].Value2 = "fck";
-                shearCalcIS13920Sheet.Cells[24, 4].Value2 = givenDesignData.inputData.fck;
-                shearCalcIS13920Sheet.Cells[24, 5].Value2 = "N/mm2";
-                shearCalcIS13920Sheet.Cells[25, 3].Value2 = "fy";
-                shearCalcIS13920Sheet.Cells[25, 4].Value2 = givenDesignData.linkFy;
+                shearCalcIS13920Sheet.Cells[22, 3].Value2 = "Sv provided";
+                shearCalcIS13920Sheet.Cells[22, 4].Value2 = givenDesignData.confiningSpacingProvided;
+                shearCalcIS13920Sheet.Cells[22, 5].Value2 = "mm";
+                shearCalcIS13920Sheet.Cells[23, 4].Value2 =
+                    givenDesignData.maxConfiningSpacingRequired >= givenDesignData.confiningSpacingProvided ?
+                    "SPACING IS OK" : "SPACING IS NOT OK";
+                if ((string)shearCalcIS13920Sheet.Cells[23, 4].Value2 == "SPACING IS NOT OK")
+                {
+                    shearCalcIS13920Sheet.Cells[23, 4].Interior.Color = Color.Red;
+                    shearCalcIS13920Sheet.Cells[23, 4].Font.Color = Color.White;
+                }
+                shearCalcIS13920Sheet.Cells[25, 3].Value2 = "fck";
+                shearCalcIS13920Sheet.Cells[25, 4].Value2 = givenDesignData.inputData.fck;
                 shearCalcIS13920Sheet.Cells[25, 5].Value2 = "N/mm2";
-                shearCalcIS13920Sheet.Cells[27, 3].Value2 = "Dia of transverse reinforcement";
-                shearCalcIS13920Sheet.Cells[27, 4].Value2 = givenDesignData.linkDia;
-                shearCalcIS13920Sheet.Cells[27, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[28, 3].Value2 = "Dia of corner longitudinal reinforcement";
-                shearCalcIS13920Sheet.Cells[28, 4].Value2 = givenDesignData.DesignData.cornerBarDia;
+                shearCalcIS13920Sheet.Cells[26, 3].Value2 = "fy";
+                shearCalcIS13920Sheet.Cells[26, 4].Value2 = givenDesignData.linkFy;
+                shearCalcIS13920Sheet.Cells[26, 5].Value2 = "N/mm2";
+                shearCalcIS13920Sheet.Cells[28, 3].Value2 = "Dia of transverse bar";
+                shearCalcIS13920Sheet.Cells[28, 4].Value2 = givenDesignData.linkDia;
                 shearCalcIS13920Sheet.Cells[28, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[29, 3].Value2 = "Clear cover";
-                shearCalcIS13920Sheet.Cells[29, 4].Value2 = givenDesignData.clearCover;
+                shearCalcIS13920Sheet.Cells[29, 3].Value2 = "Dia of corner longitudinal bar";
+                shearCalcIS13920Sheet.Cells[29, 4].Value2 = givenDesignData.DesignData.cornerBarDia;
                 shearCalcIS13920Sheet.Cells[29, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[31, 3].Value2 = "Ag";
-                shearCalcIS13920Sheet.Cells[31, 4].Value2 = givenDesignData.Ag;
-                shearCalcIS13920Sheet.Cells[31, 5].Value2 = "mm2";
-                shearCalcIS13920Sheet.Cells[32, 3].Value2 = "Ak";
-                shearCalcIS13920Sheet.Cells[32, 4].Value2 = givenDesignData.Ak;
+                shearCalcIS13920Sheet.Cells[30, 3].Value2 = "Clear cover";
+                shearCalcIS13920Sheet.Cells[30, 4].Value2 = givenDesignData.clearCover;
+                shearCalcIS13920Sheet.Cells[30, 5].Value2 = "mm";
+                shearCalcIS13920Sheet.Cells[32, 3].Value2 = "Ag";
+                shearCalcIS13920Sheet.Cells[32, 4].Value2 = givenDesignData.Ag;
                 shearCalcIS13920Sheet.Cells[32, 5].Value2 = "mm2";
-                shearCalcIS13920Sheet.Cells[33, 3].Value2 = "h";
-                shearCalcIS13920Sheet.Cells[33, 4].Value2 = givenDesignData.h;
-                shearCalcIS13920Sheet.Cells[33, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[34, 3].Value2 = "Ash for the first case";
-                shearCalcIS13920Sheet.Cells[34, 4].Value2 = givenDesignData.AshOne;
-                shearCalcIS13920Sheet.Cells[34, 5].Value2 = "mm2";
-                shearCalcIS13920Sheet.Cells[35, 3].Value2 = "Ash for the second case";
-                shearCalcIS13920Sheet.Cells[35, 4].Value2 = givenDesignData.AshTwo;
+                shearCalcIS13920Sheet.Cells[32, 6].Value2 = "cl. 7.6.1 (c)";
+                shearCalcIS13920Sheet.Cells[33, 3].Value2 = "Ak";
+                shearCalcIS13920Sheet.Cells[33, 4].Value2 = givenDesignData.Ak;
+                shearCalcIS13920Sheet.Cells[33, 5].Value2 = "mm2";
+                shearCalcIS13920Sheet.Cells[34, 3].Value2 = "h";
+                shearCalcIS13920Sheet.Cells[34, 4].Value2 = givenDesignData.h;
+                shearCalcIS13920Sheet.Cells[34, 5].Value2 = "mm";
+                shearCalcIS13920Sheet.Cells[35, 3].Value2 = "Ash required one";
+                shearCalcIS13920Sheet.Cells[35, 4].Value2 = givenDesignData.AshOne;
                 shearCalcIS13920Sheet.Cells[35, 5].Value2 = "mm2";
-                shearCalcIS13920Sheet.Cells[36, 3].Value2 = "Ash provided";
-                shearCalcIS13920Sheet.Cells[36, 4].Value2 = givenDesignData.AshProvided;
+                shearCalcIS13920Sheet.Cells[35, 6].Value2 = "cl. 7.6.1 (c) (2)";
+                shearCalcIS13920Sheet.Cells[36, 3].Value2 = "Ash required two";
+                shearCalcIS13920Sheet.Cells[36, 4].Value2 = givenDesignData.AshTwo;
                 shearCalcIS13920Sheet.Cells[36, 5].Value2 = "mm2";
-                shearCalcIS13920Sheet.Cells[37, 4].Value2 = 
+                shearCalcIS13920Sheet.Cells[36, 6].Value2 = "cl. 7.6.1 (c) (2)";
+                shearCalcIS13920Sheet.Cells[37, 3].Value2 = "Ash provided";
+                shearCalcIS13920Sheet.Cells[37, 4].Value2 = givenDesignData.AshProvided;
+                shearCalcIS13920Sheet.Cells[37, 5].Value2 = "mm2";
+                shearCalcIS13920Sheet.Cells[38, 4].Value2 =
                     givenDesignData.AshProvided > Math.Max(givenDesignData.AshOne, givenDesignData.AshTwo) ?
-                    "OK" : "NOT OK";
-                shearCalcIS13920Sheet.Cells[39, 3].Value2 = "Max spacing of confining reinforcement";
-                shearCalcIS13920Sheet.Cells[39, 4].Value2 = givenDesignData.maxConfiningSpacingRequired;
-                shearCalcIS13920Sheet.Cells[39, 5].Value2 = "mm";
-                shearCalcIS13920Sheet.Cells[39, 6].Value2 = "As per IS13920:2016";
+                    "AREA IS OK" : "AREA IS NOT OK";
+                if ((string)shearCalcIS13920Sheet.Cells[38, 4].Value2 == "AREA IS NOT OK")
+                {
+                    shearCalcIS13920Sheet.Cells[38, 4].Interior.Color = Color.Red;
+                    shearCalcIS13920Sheet.Cells[38, 4].Font.Color = Color.White;
+                }
+
                 shearCalcIS13920Sheet.Cells[40, 3].Value2 = "Hence provide";
                 shearCalcIS13920Sheet.Cells[40, 4].Value2 = givenDesignData.linkDia;
                 shearCalcIS13920Sheet.Cells[40, 5].Value2 = "mm";
@@ -1700,44 +1847,49 @@ namespace Column_Design
                 shearCalcIS13920Sheet.Cells[40, 9].Value2 = "as ties in the end zone (confining zone) and lap splices zone";
 
 
-                Excel.Worksheet columnForcesSheet = excelWorkBook.Sheets.Add(
-                    excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing, Type.Missing);
-                columnForcesSheet.Name = columnID + " Forces";
-                columnForcesSheet.Cells[1, 1].Value2 = "Column Label";
-                columnForcesSheet.Cells[2, 1].Value2 = "Story";
-                columnForcesSheet.Cells[1, 4].Value2 = "P (kN)";
-                columnForcesSheet.Cells[1, 5].Value2 = "MMajor (kNm)";
-                columnForcesSheet.Cells[1, 6].Value2 = "MMinor (kNm)";
-                columnForcesSheet.Cells[1, 2].Value2 = givenDesignData.inputData.columnLabel;
-                columnForcesSheet.Cells[2, 2].Value2 = givenDesignData.inputData.story;
-                columnForcesSheet.Cells[2, 4].Value2 = givenDesignData.inputData.P;
-                columnForcesSheet.Cells[2, 5].Value2 = givenDesignData.inputData.MMajor;
-                columnForcesSheet.Cells[2, 6].Value2 = givenDesignData.inputData.MMinor;
-                columnForcesSheet.Cells[2, 7].Value2 = "PMM envelope";
-                int startingRow = 3;
-                foreach (var load in givenDesignData.checkedMajorEccentricLoads)
-                {
-                    columnForcesSheet.Cells[startingRow, 4].Value2 = Math.Round(-1 * load.X.Kilonewtons, 2);
-                    columnForcesSheet.Cells[startingRow, 5].Value2 = Math.Round(load.YY.KilonewtonMeters, 2);
-                    columnForcesSheet.Cells[startingRow, 6].Value2 = Math.Round(load.ZZ.KilonewtonMeters, 2);
-                    columnForcesSheet.Cells[startingRow, 7].Value2 = "Minimum eccentric moment for major bending";
-                    startingRow++;
-                }
-                foreach (var load in givenDesignData.checkedMinorEccentricLoads)
-                {
-                    columnForcesSheet.Cells[startingRow, 4].Value2 = Math.Round(-1 * load.X.Kilonewtons, 2);
-                    columnForcesSheet.Cells[startingRow, 5].Value2 = Math.Round(load.YY.KilonewtonMeters, 2);
-                    columnForcesSheet.Cells[startingRow, 6].Value2 = Math.Round(load.ZZ.KilonewtonMeters, 2);
-                    columnForcesSheet.Cells[startingRow, 7].Value2 = "Minimum eccentric moment for minor bending";
-                    startingRow++;
-                }
-                foreach (var load in givenDesignData.checkedOtherLoads)
-                {
-                    columnForcesSheet.Cells[startingRow, 4].Value2 = Math.Round(-1 * load.X.Kilonewtons, 2);
-                    columnForcesSheet.Cells[startingRow, 5].Value2 = Math.Round(load.YY.KilonewtonMeters, 2);
-                    columnForcesSheet.Cells[startingRow, 6].Value2 = Math.Round(load.ZZ.KilonewtonMeters, 2);
-                    startingRow++;
-                }
+                //Excel.Worksheet columnDetailSheet = excelWorkBook.Sheets.Add(
+                //    Type.Missing, excelWorkBook.Sheets[excelWorkBook.Sheets.Count], Type.Missing, Type.Missing);
+                //columnDetailSheet.Name = columnID + " Detail";
+                //columnDetailSheet.Cells[1, 1].Value2 = "Depth";
+                //columnDetailSheet.Cells[2, 1].Value2 = "Width";
+                //columnDetailSheet.Cells[3, 1].Value2 = "fck";
+                //columnDetailSheet.Cells[4, 1].Value2 = "Cover";
+                //columnDetailSheet.Cells[5, 1].Value2 = "Link dia";
+                //columnDetailSheet.Cells[6, 1].Value2 = "Link fy";
+                //columnDetailSheet.Cells[1, 2].Value2 = givenDesignData.inputData.depth;
+                //columnDetailSheet.Cells[2, 2].Value2 = givenDesignData.inputData.width;
+                //columnDetailSheet.Cells[3, 2].Value2 = givenDesignData.inputData.fck;
+                //columnDetailSheet.Cells[4, 2].Value2 = givenDesignData.clearCover;
+                //columnDetailSheet.Cells[5, 2].Value2 = givenDesignData.linkDia;
+                //columnDetailSheet.Cells[6, 2].Value2 = givenDesignData.linkFy;
+
+                //columnDetailSheet.Cells[1, 4].Value2 = "Line Rebar";
+                //columnDetailSheet.Cells[1, 5].Value2 = "Bar count";
+                //columnDetailSheet.Cells[1, 6].Value2 = "Bar fy";
+                //columnDetailSheet.Cells[1, 7].Value2 = "Bar dia";
+                //columnDetailSheet.Cells[1, 8].Value2 = "Start point Y";
+                //columnDetailSheet.Cells[1, 9].Value2 = "Start point Z";
+                //columnDetailSheet.Cells[1, 10].Value2 = "End point Y";
+                //columnDetailSheet.Cells[1, 11].Value2 = "End point Z";
+                //var givenDesignSection = givenDesignData.designSection;
+                //int lineRebarCount = 1;
+                //foreach(var rebarGroup in givenDesignSection.ReinforcementGroups)
+                //{
+                //    if(rebarGroup is ILineGroup)
+                //    {
+                //        lineRebarCount++;
+                //        var group = (ILineGroup)rebarGroup;
+                //        var layer = (ILayerByBarCount)group.Layer;
+                //        columnDetailSheet.Cells[lineRebarCount, 4].Value2 = lineRebarCount-1;
+                //        columnDetailSheet.Cells[lineRebarCount, 5].Value2 = layer.Count;
+                //        columnDetailSheet.Cells[lineRebarCount, 6].Value2 = givenDesignData.longitudinalFy;
+                //        columnDetailSheet.Cells[lineRebarCount, 7].Value2 = layer.BarBundle.Diameter.Millimeters;
+                //        columnDetailSheet.Cells[lineRebarCount, 8].Value2 = Math.Round(group.FirstBarPosition.Y.Millimeters);
+                //        columnDetailSheet.Cells[lineRebarCount, 9].Value2 = Math.Round(group.FirstBarPosition.Z.Millimeters);
+                //        columnDetailSheet.Cells[lineRebarCount, 10].Value2 = Math.Round(group.LastBarPosition.Y.Millimeters);
+                //        columnDetailSheet.Cells[lineRebarCount, 11].Value2 = Math.Round(group.LastBarPosition.Z.Millimeters);
+                //    }
+                //}
             }
 
             excelWorkBook.Save();
@@ -1820,7 +1972,7 @@ namespace Column_Design
             }
         }
 
-        public ColumnDesignData designReinforcement(ISection concreteSection, double requiredRebarPt, double maxSpacing)
+        public ColumnDesignData DesignReinforcement(ISection concreteSection, double requiredRebarPt, double maxSpacing)
         {
             IList<ColumnDesignData> designDatas = new List<ColumnDesignData>();
             int linkDia = (int)((ILinkGroup)concreteSection.ReinforcementGroups[0]).BarBundle.Diameter.Millimeters;
@@ -1848,7 +2000,18 @@ namespace Column_Design
             emptyDesignData.arrangementWidth = arrangementWidth;
             designDatas.Add(emptyDesignData);
 
-            IList<int> barDias = new List<int>() { 32, 25, 20, 16 };
+            IList<int> barDias = new List<int>();
+            if (Include16mmBar.Checked)
+                barDias.Add(16);
+            if (Include20mmBar.Checked)
+                barDias.Add(20);
+            if (Include25mmBar.Checked)
+                barDias.Add(25);
+            if (Include32mmBar.Checked)
+                barDias.Add(32);
+            if (barDias.Count == 0)
+                barDias.Add(32);
+
             IList<double> barSpacings = new List<double>();
             double startSpacing = maxSpacing;
             barSpacings.Add(startSpacing);
@@ -1883,7 +2046,7 @@ namespace Column_Design
                     foreach (int centreBarDia in barDias.Where( _ => _ <= cornerBarDia).ToList())
                     {
                         IList<int> evenCentreBarCount = new List<int>() { 2, 4, 6 };
-                        IList<int> oddCentreBarCount = new List<int>() { 3, 5, 7 };
+                        IList<int> oddCentreBarCount = new List<int>() { 1, 3, 5, 7 };
 
                         if (nAlongDepth % 2 == 0 && nAlongWidth % 2 == 0)
                         {
@@ -2005,7 +2168,7 @@ namespace Column_Design
 
         public ColumnDesignData DefineSectionReinforcement(ISection concreteSection, double requiredRebarPt, double maxSpacing)
         {
-            ColumnDesignData columnDesignData = designReinforcement(concreteSection, requiredRebarPt, maxSpacing);
+            ColumnDesignData columnDesignData = DesignReinforcement(concreteSection, requiredRebarPt, maxSpacing);
             double arrangementDepth = columnDesignData.arrangementDepth;
             double arrangementWidth = columnDesignData.arrangementWidth;
             int cornerBarDia = columnDesignData.cornerBarDia;
@@ -2169,51 +2332,53 @@ namespace Column_Design
 
         private void Design_Click(object sender, EventArgs e)
         {
-            this.designDataToExcel.Clear();
+            designDataToExcel.Clear();
+            var givenDesignDataToExcelList = new List<DesignDataToExcel>();
 
-            for (int i = 0; i < this.ResultsTable.Rows.Count - 1; i++)
+            for (int design_row = 0; design_row < ResultsTable.Rows.Count - 1; design_row++)
             {
-                if((double)this.ResultsTable.Rows[i].Cells[3].Value == 0 || (double)this.ResultsTable.Rows[i].Cells[4].Value == 0)
-                {
-                    continue;
-                }
+                double depth = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.depth].Value;
+                double width = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.width].Value;
 
-                String givenColumnLabel = this.columnsToDesign.Text;
-                String givenStory = this.ResultsTable.Rows[i].Cells[0].Value.ToString();
-                List<ColumnForceData> matchingForceData = columnForceData.Where(_ =>
-                (_.columnLabel == givenColumnLabel &&
-                _.story == givenStory)).ToList();
-                List<ColumnForceData> matchingForceDataGLC = matchingForceData.Where(_ =>
-                _.outputCase == this.ResultsTable.Rows[i].Cells[6].Value.ToString()).ToList();
+                if (depth == 0 || width == 0) continue;
 
-                IProfile profile = null; 
-                profile = IRectangleProfile.Create(
-                    Length.FromMillimeters((double)this.ResultsTable.Rows[i].Cells[3].Value), 
-                    Length.FromMillimeters((double)this.ResultsTable.Rows[i].Cells[4].Value));
-                section = ISection.Create(profile, GetSectionMaterial((double)this.ResultsTable.Rows[i].Cells[2].Value));
+                string givenColumnLabel = ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.column_label].Value.ToString();
+                string givenStory = ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.story].Value.ToString();
+                double fck = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value;
+                double cover = double.Parse(rebarCover.Text);
+                double ptRequired = ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.etabs_req].Value is string ?
+                    double.Parse((string)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.etabs_req].Value) :
+                    (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.etabs_req].Value;
 
-                double cover = Double.Parse(this.rebarCover.Text);
+                IProfile profile = IRectangleProfile.Create(Length.FromMillimeters(depth), Length.FromMillimeters(width));
+                section = ISection.Create(profile, GetSectionMaterial(fck));
                 section.Cover = ICover.Create(Length.FromMillimeters(cover));
-                
-                double ptRequired = this.ResultsTable.Rows[i].Cells[14].Value is string?
-                    double.Parse((string)this.ResultsTable.Rows[i].Cells[14].Value) :
-                    (double)this.ResultsTable.Rows[i].Cells[14].Value;
-                
+
+                List<ColumnForceData> matchingForceData = columnForceData.Where(_ =>
+                _.columnLabel == givenColumnLabel && _.story == givenStory).ToList();
+                List<ColumnForceData> matchingForceDataGLC = matchingForceData.Where(_ =>
+                _.outputCase == ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_combination].Value.ToString()).ToList();
+
                 // Loads to check
-                double axialAdSec = -1 * (double)this.ResultsTable.Rows[i].Cells[7].Value;
-                double mMajorAdSec = (double)this.ResultsTable.Rows[i].Cells[8].Value;
-                double mMinorAdSec = (double)this.ResultsTable.Rows[i].Cells[9].Value;
+                double axialAdSec = -1 * (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.p].Value;
+                double mMajorAdSec = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m33].Value;
+                double mMinorAdSec = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m22].Value;
                 var adSecLoad = ILoad.Create(
                     Force.FromKilonewtons(axialAdSec),
                     Moment.FromKilonewtonMeters(mMajorAdSec),
                     Moment.FromKilonewtonMeters(mMinorAdSec));
                 List<ILoad> loadsToBeChecked = new List<ILoad>();
                 var givenDesignDataToExcel = new DesignDataToExcel();
+                givenDesignDataToExcel.inputData.depth = depth;
+                givenDesignDataToExcel.inputData.width = width;
+                givenDesignDataToExcel.inputData.P = Math.Round(axialAdSec * -1, 2);
+                givenDesignDataToExcel.inputData.MMajor = Math.Round(mMajorAdSec, 2);
+                givenDesignDataToExcel.inputData.MMinor = Math.Round(mMinorAdSec, 2);
                 givenDesignDataToExcel.checkedMajorEccentricLoads = new List<ILoad>();
                 givenDesignDataToExcel.checkedMinorEccentricLoads = new List<ILoad>();
                 givenDesignDataToExcel.checkedOtherLoads = new List<ILoad>();
 
-                double lengthOfColumn = (double)this.ResultsTable.Rows[i].Cells[5].Value;
+                double lengthOfColumn = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.length].Value;
                 double previousStation = 0;
                 List<double> appliedAxialForGLC = new List<double>();
                 int indexOfP = -1;
@@ -2225,7 +2390,7 @@ namespace Column_Design
                         previousStation = 0;
                     }
 
-                    if (Math.Abs(lengthOfColumn * 0.5 - givenForceData.station*1000) <
+                    if (Math.Abs(lengthOfColumn * 0.5 - givenForceData.station * 1000) <
                         Math.Abs(lengthOfColumn * 0.5 - previousStation))
                     {
                         if (appliedAxialForGLC.Count - 1 != indexOfP)
@@ -2237,7 +2402,7 @@ namespace Column_Design
                             appliedAxialForGLC[indexOfP] = givenForceData.P;
                         }
                     }
-                    previousStation = givenForceData.station*1000;
+                    previousStation = givenForceData.station * 1000;
                 }
                 indexOfP = -1;
                 foreach (var givenForceData in matchingForceDataGLC)
@@ -2245,9 +2410,8 @@ namespace Column_Design
                     if (givenForceData.station == 0)
                         indexOfP++;
 
-                    double ex = this.minEccOverride.CheckedIndices.Contains(0) ?
-                        Double.Parse(this.minEccMajor.Text) : 
-                        (0.65 * lengthOfColumn / 500) + ((double)this.ResultsTable.Rows[i].Cells[3].Value / 30);
+                    double ex = OverrideMajorEcc.Checked ? double.Parse(minEccMajor.Text) : 
+                        Math.Max((0.65 * lengthOfColumn / 500) + (depth / 30), 20);
                     double minMajorMoment = appliedAxialForGLC[indexOfP] * ex / 1000;
 
                     ILoad loadOne = ILoad.Create(
@@ -2262,10 +2426,9 @@ namespace Column_Design
                 {
                     if (givenForceData.station == 0)
                         indexOfP++;
-                    
-                    double ey = this.minEccOverride.CheckedIndices.Contains(1) ?
-                        Double.Parse(this.minEccMinor.Text) : 
-                        (0.65 * lengthOfColumn / 500) + ((double)this.ResultsTable.Rows[i].Cells[4].Value / 30);
+
+                    double ey = OverrideMinorEcc.Checked ? double.Parse(minEccMinor.Text) :
+                        Math.Max((0.65 * lengthOfColumn / 500) + (width / 30), 20);
                     double minMinorMoment = appliedAxialForGLC[indexOfP] * ey / 1000;
 
                     ILoad loadTwo = ILoad.Create(
@@ -2294,31 +2457,28 @@ namespace Column_Design
                 double loadUtilisation = 0;
                 double otherMomentRatio = 0;
                 double otherLoadUtilisation = 0;
-                double linkMaterial = Double.Parse(this.givenLinkFy.Text);
-                double linkDia = Double.Parse(this.linkDia.Text);
+                double linkMaterial = double.Parse(givenLinkFy.Text);
+                double linkDia = double.Parse(this.linkDia.Text);
                 var linkBar = IBarBundle.Create(GetRebarMaterial(linkMaterial), Length.FromMillimeters(linkDia));
                 var linkGroup = ILinkGroup.Create(linkBar);
                 givenDesignDataToExcel.inputData.rebarPtEtabs = Math.Round(ptRequired, 2);
-                double arrangementDepth =
-                    ((IRectangleProfile)section.Profile).Depth.Millimeters -
-                    2 * section.Cover.UniformCover.Millimeters -
-                    2 * linkDia -
-                    32;// cornerBarDia;
-                double arrangementWidth =
-                    ((IRectangleProfile)section.Profile).Width.Millimeters -
-                    2 * section.Cover.UniformCover.Millimeters -
-                    2 * linkDia -
-                    32;// cornerBarDia;
 
-                int nAlongDepth = (int)Math.Ceiling(arrangementDepth / Double.Parse(this.maximumSpacing.Text)) + 1;
-                int nAlongWidth = (int)Math.Ceiling(arrangementWidth / Double.Parse(this.maximumSpacing.Text)) + 1;
-                var minPossiblePt = 100 * 0.25 * Math.PI * 16 * 16 * ((nAlongDepth + nAlongWidth) * 2 - 4) /
-                    ((IRectangleProfile)section.Profile).Depth.Millimeters /
-                    ((IRectangleProfile)section.Profile).Width.Millimeters;
+                double arrangementDepth = depth - 2 * section.Cover.UniformCover.Millimeters - 2 * linkDia - 32;// cornerBarDia;
+                double arrangementWidth = width - 2 * section.Cover.UniformCover.Millimeters - 2 * linkDia - 32;// cornerBarDia;
+
+                int nAlongDepth = (int)Math.Ceiling(arrangementDepth / double.Parse(maximumSpacing.Text)) + 1;
+                int nAlongWidth = (int)Math.Ceiling(arrangementWidth / double.Parse(maximumSpacing.Text)) + 1;
+                var minPossiblePt = 100 * 0.25 * Math.PI * 16 * 16 * ((nAlongDepth + nAlongWidth) * 2 - 4) / depth / width;
 
                 while (ptRequired != 0)
                 {
-                    ISection previousDesignSection = section;
+                    ISection previousDesignSection = ISection.Create(section.Profile, section.Material);
+                    previousDesignSection.Cover = section.Cover;
+                    foreach (var rebarGroup in section.ReinforcementGroups)
+                    {
+                        previousDesignSection.ReinforcementGroups.Add(rebarGroup);
+                    }
+
                     var previousDesignData = designData;
                     double previousMomentRatio = momentRatio;
                     double previousLoadUtilisation = loadUtilisation;
@@ -2326,16 +2486,32 @@ namespace Column_Design
                     section.ReinforcementGroups.Clear();
                     section.ReinforcementGroups.Add(linkGroup);
 
-                    designData = DefineSectionReinforcement(
-                        section,
-                        ptRequired,
-                        Double.Parse(this.maximumSpacing.Text));
+                    designData = DefineSectionReinforcement(section, ptRequired, double.Parse(maximumSpacing.Text));
 
                     if (designData.ptProvided != 0)
                     {
                         solution = adsecApp.Analyse(section);
-
                         strengthResult = solution.Strength.Check(adSecLoad);
+
+                        double tensile_rebar_area = 0;
+                        var simplified_section = adsecApp.Flatten(section);
+                        foreach (var rebar_group in simplified_section.ReinforcementGroups)
+                        {
+                            if (!(rebar_group is ISingleBars))
+                            {
+                                continue;
+                            }
+                            foreach(var rebar_position in ((ISingleBars)rebar_group).Positions)
+                            {
+                                if (strengthResult.Deformation.StrainAt(rebar_position).MicroStrain > 0)
+                                {
+                                    tensile_rebar_area += 0.25 * Math.PI * Math.Pow(((ISingleBars)rebar_group).BarBundle.Diameter.Millimeters, 2);
+                                }
+                            }
+                        }
+                        double tensile_rebar = 100 * tensile_rebar_area / section.Profile.Area().SquareMillimeters;
+                        designData.tensile_rebar = tensile_rebar;
+
                         var momentRanges = strengthResult.MomentRanges;
                         double ultimateMoment = 0;
                         for (int j = 0; j < momentRanges.Count; j++)
@@ -2345,8 +2521,8 @@ namespace Column_Design
                         double appliedMoment = Math.Sqrt(Math.Pow(mMajorAdSec, 2) + Math.Pow(mMinorAdSec, 2));
                         momentRatio = appliedMoment / ultimateMoment;
                         loadUtilisation = strengthResult.LoadUtilisation.DecimalFractions;
-                        
-                        foreach(var loadToCheck in loadsToBeChecked)
+
+                        foreach (var loadToCheck in loadsToBeChecked)
                         {
                             otherStrengthResult = solution.Strength.Check(loadToCheck);
 
@@ -2357,79 +2533,286 @@ namespace Column_Design
                                 otherUltimateMoment = Math.Max(otherMomentRanges[j].Max.KilonewtonMeters, otherUltimateMoment);
                             }
                             double otherAppliedMoment = Math.Sqrt(
-                                Math.Pow(loadToCheck.YY.KilonewtonMeters, 2) + 
+                                Math.Pow(loadToCheck.YY.KilonewtonMeters, 2) +
                                 Math.Pow(loadToCheck.ZZ.KilonewtonMeters, 2));
-                            
+
                             otherMomentRatio = Math.Max(otherMomentRatio, otherAppliedMoment / otherUltimateMoment);
                             otherLoadUtilisation = Math.Max(otherLoadUtilisation, otherStrengthResult.LoadUtilisation.DecimalFractions);
                         }
 
-                        if (momentRatio > 1 || loadUtilisation > 1 || otherMomentRatio > 1 || otherLoadUtilisation > 1)
+                        double limit = double.Parse(this.UtilisationLimit.Text) / 100;
+                        if (limit > 1 || limit <= 0)
+                            limit = 1;
+
+                        if (momentRatio > limit || loadUtilisation > limit || otherMomentRatio > limit || otherLoadUtilisation > limit)
                         {
-                            section = previousDesignSection;
-                            designData = previousDesignData;
-                            momentRatio = previousMomentRatio;
-                            loadUtilisation = previousLoadUtilisation;
+                            if (momentRatio > 1 || loadUtilisation > 1 || otherMomentRatio > 1 || otherLoadUtilisation > 1)
+                            {
+                                section = previousDesignSection;
+                                designData = previousDesignData;
+                                momentRatio = previousMomentRatio;
+                                loadUtilisation = previousLoadUtilisation;
+                            }
+
+                            givenDesignDataToExcel.loadUtilisation = loadUtilisation;
+                            givenDesignDataToExcel.momentRatio = momentRatio;
+                            givenDesignDataToExcel.DesignData = designData;
+                            givenDesignDataToExcel.designSection = section;
+                            givenDesignDataToExcelList.Add(givenDesignDataToExcel);
+                            
                             ptRequired = 0;
                         }
                         else
                         {
-                            if (minPossiblePt < ptRequired + 0.05)
+                            if ((minPossiblePt < ptRequired + 0.05) && !(ptRequired < 0.805))
                             {
                                 ptRequired = ptRequired - 0.05;
                             }
                             else
                             {
+                                givenDesignDataToExcel.loadUtilisation = loadUtilisation;
+                                givenDesignDataToExcel.momentRatio = momentRatio;
+                                givenDesignDataToExcel.DesignData = designData;
+                                givenDesignDataToExcel.designSection = section;
+                                givenDesignDataToExcelList.Add(givenDesignDataToExcel);
+
                                 ptRequired = 0;
                             }
                         }
-
-                        //if (momentRatio < 0.9 && loadUtilisation < 0.9)
-                        //{
-                        //    if (designData.ptProvided != previousDesignData.ptProvided)
-                        //    {
-                        //        ptRequired = ptRequired - 0.1;
-                        //    }
-                        //    else
-                        //    {
-                        //        ptRequired = 0;
-                        //    }
-                        //}
-                        //else if (momentRatio > 0.95 || loadUtilisation > 0.95)
-                        //{
-                        //    designData = previousDesignData;
-                        //    momentRatio = previousMomentRatio;
-                        //    loadUtilisation = previousLoadUtilisation;
-                        //    ptRequired = 0;
-                        //}
-                        //else
-                        //{
-                        //    ptRequired = 0;
-                        //}
                     }
                     else
                     {
-                        //this.maximumSpacing.Text = (Double.Parse(this.maximumSpacing.Text) - 5).ToString();
+                        givenDesignDataToExcel.loadUtilisation = loadUtilisation;
+                        givenDesignDataToExcel.momentRatio = momentRatio;
+                        givenDesignDataToExcel.DesignData = designData;
+                        givenDesignDataToExcel.designSection = section;
+                        givenDesignDataToExcelList.Add(givenDesignDataToExcel);
+
                         ptRequired = 0;
                     }
                 }
+            }
 
-                this.ResultsTable.Rows[i].Cells[10].Value = Math.Round(loadUtilisation, 2);
-                this.ResultsTable.Rows[i].Cells[11].Value = Math.Round(momentRatio, 2);
-                this.ResultsTable.Rows[i].Cells[12].Value = designData.rebarDescription;
-                this.ResultsTable.Rows[i].Cells[13].Value = Math.Round(designData.ptProvided, 2);
+            if(ResultsTable.Rows.Count > 2 && UniformRebar.Checked)
+            {
+                double previousDepth = 0;
+                double previousWidth = 0;
+                double maxPT = 0;
+                int startIndex = 0;
+                ColumnDesignData maxPTData = new ColumnDesignData();
+                Oasys.Collections.IList<IGroup> maxPTRebarGroup = null;
+                for (int i = 0; i < givenDesignDataToExcelList.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        previousDepth = givenDesignDataToExcelList[i].inputData.depth;
+                        previousWidth = givenDesignDataToExcelList[i].inputData.width;
+                        maxPT = givenDesignDataToExcelList[i].DesignData.ptProvided;
+                        maxPTData = givenDesignDataToExcelList[i].DesignData;
+                        maxPTRebarGroup = givenDesignDataToExcelList[i].designSection.ReinforcementGroups;
+                        continue;
+                    }
 
-                double factoredShearForceAlongY = (double)this.ResultsTable.Rows[i].Cells[15].Value;
-                double factoredShearForceAlongX = (double)this.ResultsTable.Rows[i].Cells[16].Value;
-                double depth = ((IRectangleProfile)section.Profile).Depth.Millimeters;
-                double width = ((IRectangleProfile)section.Profile).Width.Millimeters;
+                    if (previousDepth == givenDesignDataToExcelList[i].inputData.depth &&
+                        previousWidth == givenDesignDataToExcelList[i].inputData.width)
+                    {
+                        if (maxPT < givenDesignDataToExcelList[i].DesignData.ptProvided)
+                        {
+                            maxPT = givenDesignDataToExcelList[i].DesignData.ptProvided;
+                            maxPTData = givenDesignDataToExcelList[i].DesignData;
+                            maxPTRebarGroup = 
+                                givenDesignDataToExcelList[i].designSection.ReinforcementGroups;
+                        }
+
+                        if (i == (givenDesignDataToExcelList.Count - 1))
+                        {
+                            for (int j = startIndex; j < givenDesignDataToExcelList.Count; j++)
+                            {
+                                var dataToUpdate = givenDesignDataToExcelList[j];
+                                dataToUpdate.DesignData = maxPTData;
+                                dataToUpdate.designSection.ReinforcementGroups = maxPTRebarGroup;
+                                if(maxPTData.ptProvided !=0)
+                                {
+                                    var solution = adsecApp.Analyse(dataToUpdate.designSection);
+                                    var strengthResult = solution.Strength.Check(
+                                        ILoad.Create(
+                                            Force.FromKilonewtons(-1 * dataToUpdate.inputData.P),
+                                            Moment.FromKilonewtonMeters(dataToUpdate.inputData.MMajor),
+                                            Moment.FromKilonewtonMeters(dataToUpdate.inputData.MMinor)));
+
+                                    double tensile_rebar_area = 0;
+                                    var simplified_section = adsecApp.Flatten(dataToUpdate.designSection);
+                                    foreach (var rebar_group in simplified_section.ReinforcementGroups)
+                                    {
+                                        if (!(rebar_group is ISingleBars))
+                                        {
+                                            continue;
+                                        }
+                                        foreach (var rebar_position in ((ISingleBars)rebar_group).Positions)
+                                        {
+                                            if (strengthResult.Deformation.StrainAt(rebar_position).MicroStrain > 0)
+                                            {
+                                                tensile_rebar_area +=
+                                                    0.25 * Math.PI * Math.Pow(((ISingleBars)rebar_group).BarBundle.Diameter.Millimeters, 2);
+                                            }
+                                        }
+                                    }
+                                    double tensile_rebar = 100 * tensile_rebar_area / section.Profile.Area().SquareMillimeters;
+                                    dataToUpdate.DesignData.tensile_rebar = tensile_rebar;
+
+                                    var momentRanges = strengthResult.MomentRanges;
+                                    double ultimateMoment = 0;
+                                    for (int k = 0; k < momentRanges.Count; k++)
+                                    {
+                                        ultimateMoment = Math.Max(momentRanges[k].Max.KilonewtonMeters, ultimateMoment);
+                                    }
+                                    double appliedMoment =
+                                        Math.Sqrt(Math.Pow(dataToUpdate.inputData.MMajor, 2) + Math.Pow(dataToUpdate.inputData.MMinor, 2));
+                                    var momentRatio = appliedMoment / ultimateMoment;
+                                    var loadUtilisation = strengthResult.LoadUtilisation.DecimalFractions;
+                                    dataToUpdate.loadUtilisation = loadUtilisation;
+                                    dataToUpdate.momentRatio = momentRatio;
+                                }
+                                else
+                                {
+                                    dataToUpdate.loadUtilisation = 0;
+                                    dataToUpdate.momentRatio = 0;
+                                }
+
+                                givenDesignDataToExcelList[j] = dataToUpdate;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int j = startIndex; j < i; j++)
+                        {
+                            var dataToUpdate = givenDesignDataToExcelList[j];
+                            dataToUpdate.DesignData = maxPTData;
+                            dataToUpdate.designSection.ReinforcementGroups = maxPTRebarGroup;
+                            if(maxPTData.ptProvided !=0)
+                            {
+                                var solution = adsecApp.Analyse(dataToUpdate.designSection);
+                                var strengthResult = solution.Strength.Check(
+                                    ILoad.Create(
+                                        Force.FromKilonewtons(-1 * dataToUpdate.inputData.P),
+                                        Moment.FromKilonewtonMeters(dataToUpdate.inputData.MMajor),
+                                        Moment.FromKilonewtonMeters(dataToUpdate.inputData.MMinor)));
+
+                                double tensile_rebar_area = 0;
+                                var simplified_section = adsecApp.Flatten(dataToUpdate.designSection);
+                                foreach (var rebar_group in simplified_section.ReinforcementGroups)
+                                {
+                                    if (!(rebar_group is ISingleBars))
+                                    {
+                                        continue;
+                                    }
+                                    foreach (var rebar_position in ((ISingleBars)rebar_group).Positions)
+                                    {
+                                        if (strengthResult.Deformation.StrainAt(rebar_position).MicroStrain > 0)
+                                        {
+                                            tensile_rebar_area += 
+                                                0.25 * Math.PI * Math.Pow(((ISingleBars)rebar_group).BarBundle.Diameter.Millimeters, 2);
+                                        }
+                                    }
+                                }
+                                double tensile_rebar = 100 * tensile_rebar_area / section.Profile.Area().SquareMillimeters;
+                                dataToUpdate.DesignData.tensile_rebar = tensile_rebar;
+
+                                var momentRanges = strengthResult.MomentRanges;
+                                double ultimateMoment = 0;
+                                for (int k = 0; k < momentRanges.Count; k++)
+                                {
+                                    ultimateMoment = Math.Max(momentRanges[k].Max.KilonewtonMeters, ultimateMoment);
+                                }
+                                double appliedMoment =
+                                    Math.Sqrt(Math.Pow(dataToUpdate.inputData.MMajor, 2) + Math.Pow(dataToUpdate.inputData.MMinor, 2));
+                                var momentRatio = appliedMoment / ultimateMoment;
+                                var loadUtilisation = strengthResult.LoadUtilisation.DecimalFractions;
+                                dataToUpdate.loadUtilisation = loadUtilisation;
+                                dataToUpdate.momentRatio = momentRatio;
+                            }
+                            else
+                            {
+                                dataToUpdate.loadUtilisation = 0;
+                                dataToUpdate.momentRatio = 0;
+                            }
+                            givenDesignDataToExcelList[j] = dataToUpdate;
+                        }
+
+                        startIndex = i;
+                        maxPT = givenDesignDataToExcelList[i].DesignData.ptProvided;
+                        maxPTData = givenDesignDataToExcelList[i].DesignData;
+                        maxPTRebarGroup = givenDesignDataToExcelList[i].designSection.ReinforcementGroups;
+                        previousDepth = givenDesignDataToExcelList[i].inputData.depth;
+                        previousWidth = givenDesignDataToExcelList[i].inputData.width;
+                    }
+                }
+            }
+
+            for (int design_row = 0; design_row < ResultsTable.Rows.Count - 1; design_row++)
+            {
+                double depth = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.depth].Value;
+                double width = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.width].Value;
+                
+                if (depth == 0 || width == 0) continue;
+
+                var givenDesignDataToExcel = givenDesignDataToExcelList[0];
+                if (givenDesignDataToExcelList.Count > 0)
+                {
+                    givenDesignDataToExcelList.RemoveAt(0);
+                }
+                var designData = givenDesignDataToExcel.DesignData;
+                var loadUtilisation = givenDesignDataToExcel.loadUtilisation;
+                var momentRatio = givenDesignDataToExcel.momentRatio;
+                var section = givenDesignDataToExcel.designSection;
+                double cover = double.Parse(rebarCover.Text);
+                double linkMaterial = double.Parse(givenLinkFy.Text);
+                double linkDia = double.Parse(this.linkDia.Text);
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.ForeColor = Color.Black;
+
+                if (loadUtilisation > 1)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Style.ForeColor = Color.White;
+                }
+
+                if (momentRatio > 1)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Style.ForeColor = Color.White;
+                }
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.load_util].Value = Math.Round(loadUtilisation, 2);
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.m_ratio].Value = Math.Round(momentRatio, 2);
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.rebar_description].Value = designData.rebarDescription;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.adsec_pro].Value = Math.Round(designData.ptProvided, 2);
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tensile_rebar].Value = Math.Round(designData.tensile_rebar, 2);
+
+                double factoredShearForceAlongY = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.vy].Value;
+                double factoredShearForceAlongX = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.vx].Value;
                 double effectiveDepth = 0;
                 double effectiveWidth = 0;
 
                 double tauVAlongY = 0;
                 double tauVAlongX = 0;
                 double tauC = 0;
-                double tauCMax = CalculateTauCMax((double)this.ResultsTable.Rows[i].Cells[2].Value);
+                double tauCMax = CalculateTauCMax((double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value);
                 int legsAlongY = 0;
                 int legsAlongX = 0;
                 double vusAlongY = 0;
@@ -2442,102 +2825,198 @@ namespace Column_Design
                 double minAsvRequired = 0;
                 double nonConfiningSpacingOne = 0;
                 double nonConfiningSpacingTwo = 0;
-                double spacingOne = Math.Min(depth, width) / 4;
-                double spacingTwo = 6 * designData.centreBarDia;
-                double spacingThree = 100;
-                double maxConfiningSpacing = Math.Min(spacingOne, Math.Min(spacingTwo, spacingThree));
+                double spacingTwo = 0;
+                double spacingOne = 0;
+                double spacingThree = 0;
+                double maxConfiningSpacing = 0;
                 double Ag = 0;
                 double Ak = 0;
                 double AshOne = 0;
                 double AshTwo = 0;
                 double AshRequired = 0;
-                
+
                 if (designData.ptProvided != 0)
                 {
                     // Shear reinf. calculation as per IS 456
-                    effectiveDepth =
-                        depth - section.Cover.UniformCover.Millimeters - linkDia - designData.cornerBarDia * 0.5;
-                    effectiveWidth =
-                        width - section.Cover.UniformCover.Millimeters - linkDia - designData.cornerBarDia * 0.5;
+                    effectiveDepth = depth - cover - linkDia - designData.cornerBarDia * 0.5;
+                    effectiveWidth = width - cover - linkDia - designData.cornerBarDia * 0.5;
                     tauVAlongY = 1000 * factoredShearForceAlongY / effectiveDepth / width;
                     tauVAlongX = 1000 * factoredShearForceAlongX / effectiveWidth / depth;
-                    tauC = CalculateTauC(designData.ptProvided, (double)this.ResultsTable.Rows[i].Cells[2].Value);
+                    double fck = (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value;
+                    tauC = CalculateTauC(designData.tensile_rebar, fck);
+
+                    if(IncreaseTauC.Checked)
+                    {
+                        double axial_force = 1000 * (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.p].Value;
+                        if(axial_force > 0) tauC = tauC * Math.Min(1.5, 1 + 3 * axial_force / depth / width / fck);
+                    }
+
                     legsAlongY = designData.cornerBarCountAlongWidth + designData.centreBarCountAlongWidth;
                     legsAlongX = designData.cornerBarCountAlongDepth + designData.centreBarCountAlongDepth;
                     vusAlongY = (1000 * factoredShearForceAlongY - tauC * effectiveDepth * width);
                     vusAlongX = (1000 * factoredShearForceAlongX - tauC * effectiveWidth * depth);
                     asvAlongY = (Math.PI / 4) * linkDia * linkDia * legsAlongY;
                     asvAlongX = (Math.PI / 4) * linkDia * linkDia * legsAlongX;
-                    spacingRequiredAlongY = 0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY > 0 ?
-                        Math.Min(0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY, 0.75 * effectiveDepth) :
-                        0.75 * effectiveDepth;
-                    spacingRequiredAlongX = 0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX > 0 ?
-                        Math.Min(0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX, 0.75 * effectiveWidth) :
-                        0.75 * effectiveWidth; // IS456 pg.47
+                    nonConfiningSpacingTwo = Math.Min(Math.Min(depth, width), Math.Min(16 * designData.centreBarDia, 300));
+                    spacingRequiredAlongY = 0.87 * double.Parse(givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY > 0 ?
+                        Math.Min(0.87 * double.Parse(givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY, nonConfiningSpacingTwo):
+                        nonConfiningSpacingTwo;
+                    spacingRequiredAlongX = 0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX > 0 ?
+                        Math.Min(0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX, nonConfiningSpacingTwo) :
+                        nonConfiningSpacingTwo; // IS456 pg.49
                     spacingRequired = Math.Min(spacingRequiredAlongY, spacingRequiredAlongX);
-                    minAsvRequired = 0.4 * width * double.Parse(this.nonConfiningSpacing.Text) 
-                        / 0.87 / double.Parse(this.givenLinkFy.Text); // IS456 pg.48
+                    minAsvRequired = 
+                        0.4 * width * double.Parse(nonConfiningSpacing.Text) / 0.87 / double.Parse(givenLinkFy.Text); // IS456 pg.48
 
-                    nonConfiningSpacingOne = Math.Min(
-                        0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY > 0 ?
-                        0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY :
-                        0,
-                        0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX > 0 ?
-                        0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX :
-                        0);
-                    nonConfiningSpacingTwo = Math.Min(0.75 * effectiveDepth, 0.75 * effectiveWidth);
+                    nonConfiningSpacingOne =
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY > 0 &&
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX > 0 ?
+                        Math.Min(0.87 * double.Parse(this.givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY,
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX) : (
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY > 0 ?
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongY * effectiveDepth / vusAlongY : (
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX > 0 ?
+                        0.87 * double.Parse(givenLinkFy.Text) * asvAlongX * effectiveWidth / vusAlongX : 0));
 
                     // Shear reinf. calculation as per IS 13920
-                    spacingOne = Math.Min(depth, width) / 4;
-                    //spacingTwo = 6 * designData.centreBarDia;
                     spacingTwo = designData.centreBarDia == 16 ? 6 * 20 : 6 * designData.centreBarDia;
-                    spacingThree = 100;
+                    spacingOne = spacingTwo; // Math.Min(depth, width) / 4;
+                    spacingThree = spacingTwo; // 100;
                     maxConfiningSpacing = Math.Min(spacingOne, Math.Min(spacingTwo, spacingThree));
 
                     Ag = depth * width;
-                    Ak = (depth - 2 * section.Cover.UniformCover.Millimeters) * 
+                    Ak = (depth - 2 * section.Cover.UniformCover.Millimeters) *
                         (width - 2 * section.Cover.UniformCover.Millimeters);
                     AshOne = 0.18 * double.Parse(this.confiningSpacing.Text) *
                         Math.Max(designData.spacingAlongDepth, designData.spacingAlongWidth) *
-                        (double)this.ResultsTable.Rows[i].Cells[2].Value *
+                        (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value *
                         (Ag / Ak - 1) /
                         double.Parse(this.givenLinkFy.Text);
                     AshTwo = 0.05 * double.Parse(this.confiningSpacing.Text) *
                         Math.Max(designData.spacingAlongDepth, designData.spacingAlongWidth) *
-                        (double)this.ResultsTable.Rows[i].Cells[2].Value /
+                        (double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value /
                         double.Parse(this.givenLinkFy.Text);
+                    if(IsGravityColumn.Checked)
+                    {
+                        AshOne = 0.5 * AshOne;
+                        AshTwo = 0.5 * AshTwo;
+                    }
                     AshRequired = Math.Max(AshOne, AshTwo);
                 }
 
-                this.designTauCMax.Text = Math.Round(tauCMax, 1).ToString();
-                this.designMinAsv.Text = Math.Ceiling(minAsvRequired).ToString();
-                this.ResultsTable.Rows[i].Cells[19].Value = Math.Round(tauC, 2);
-                this.ResultsTable.Rows[i].Cells[21].Value = Math.Round(tauVAlongX, 2);
-                this.ResultsTable.Rows[i].Cells[18].Value = Math.Floor(asvAlongX);
-                this.ResultsTable.Rows[i].Cells[20].Value = Math.Round(tauVAlongY, 2);
-                this.ResultsTable.Rows[i].Cells[17].Value = Math.Floor(asvAlongY);
-                this.ResultsTable.Rows[i].Cells[22].Value = Math.Floor(spacingRequired);
-                this.ResultsTable.Rows[i].Cells[23].Value = Math.Floor(maxConfiningSpacing);
-                this.ResultsTable.Rows[i].Cells[24].Value = Math.Ceiling(AshRequired);
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.ForeColor = Color.Black;
+
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.BackColor = Color.White;
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.ForeColor = Color.Black;
+
+                designTauCMax.Text = Math.Round(tauCMax, 1).ToString();
+                designMinAsv.Text = Math.Ceiling(minAsvRequired).ToString();
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauc].Value = Math.Round(tauC, 2);
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Value = Math.Round(tauVAlongX, 2);
+                if(tauCMax < tauVAlongX)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvx].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Value = Math.Floor(asvAlongX);
+                if (asvAlongX < minAsvRequired)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvx].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Value = Math.Round(tauVAlongY, 2);
+                if (tauCMax < tauVAlongY)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.tauvy].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Value = Math.Floor(asvAlongY);
+                if (asvAlongY < minAsvRequired)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.asvy].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Value = Math.Floor(spacingRequired);
+                if (spacingRequired < double.Parse(this.nonConfiningSpacing.Text))
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_nc].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Value = Math.Floor(maxConfiningSpacing);
+                if (maxConfiningSpacing < double.Parse(this.confiningSpacing.Text))
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.max_c].Style.ForeColor = Color.White;
+                }
+                ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Value = Math.Ceiling(AshRequired);
                 this.AshProvided.Text = Math.Floor(0.25 * Math.PI * linkDia * linkDia).ToString();
+                if (Math.Floor(0.25 * Math.PI * linkDia * linkDia) < AshRequired)
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.BackColor = Color.Red;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.ForeColor = Color.White;
+                }
+                else
+                {
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.BackColor = Color.Green;
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.ash_req].Style.ForeColor = Color.White;
+                }
 
-                givenDesignDataToExcel.designSection = section;
-                givenDesignDataToExcel.inputData = new ColumnInputData();
-                givenDesignDataToExcel.inputData.columnLabel = this.columnsToDesign.Text;
-                givenDesignDataToExcel.inputData.story = this.ResultsTable.Rows[i].Cells[0].Value.ToString();
-                givenDesignDataToExcel.inputData.P = Math.Round(axialAdSec * -1, 2);
-                givenDesignDataToExcel.inputData.MMajor = Math.Round(mMajorAdSec, 2);
-                givenDesignDataToExcel.inputData.MMinor = Math.Round(mMinorAdSec, 2);
-                givenDesignDataToExcel.inputData.location = this.ResultsTable.Rows[i].Cells[1].Value.ToString();
-                givenDesignDataToExcel.inputData.width = Math.Round(width, 0);
-                givenDesignDataToExcel.inputData.depth = Math.Round(depth, 0);
+                givenDesignDataToExcel.inputData.columnLabel = 
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.column_label].Value.ToString();
+                givenDesignDataToExcel.inputData.story = 
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.story].Value.ToString();
+                givenDesignDataToExcel.inputData.location = 
+                    ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.location].Value.ToString();
                 givenDesignDataToExcel.inputData.diameter = 0;
-                givenDesignDataToExcel.inputData.fck = Math.Round((double)this.ResultsTable.Rows[i].Cells[2].Value, 0);
-
+                givenDesignDataToExcel.inputData.fck = 
+                    Math.Round((double)ResultsTable.Rows[design_row].Cells[ResultTableColumnIndex.fck].Value, 0);
                 givenDesignDataToExcel.DesignData = designData;
-
-                givenDesignDataToExcel.loadUtilisation = Math.Round(loadUtilisation, 2);
-                givenDesignDataToExcel.momentRatio = Math.Round(momentRatio, 2);
                 givenDesignDataToExcel.factoredShearForceAlongY = Math.Round(factoredShearForceAlongY, 2);
                 givenDesignDataToExcel.factoredShearForceAlongX = Math.Round(factoredShearForceAlongX, 2);
                 givenDesignDataToExcel.effectiveDepth = Math.Round(effectiveDepth, 0);
@@ -2546,7 +3025,7 @@ namespace Column_Design
                 givenDesignDataToExcel.tauVAlongX = Math.Round(tauVAlongX, 2);
                 givenDesignDataToExcel.tauC = Math.Round(tauC, 2);
                 givenDesignDataToExcel.tauCMax = Math.Round(tauCMax, 2);
-                givenDesignDataToExcel.longitudinalFy = Math.Round(double.Parse(this.designLongFy.Text), 0);
+                givenDesignDataToExcel.longitudinalFy = Math.Round(double.Parse(designLongFy.Text), 0);
                 givenDesignDataToExcel.linkFy = Math.Round(linkMaterial, 0);
                 givenDesignDataToExcel.linkDia = Math.Round(linkDia, 0);
                 givenDesignDataToExcel.legsAlongY = legsAlongY;
@@ -2558,7 +3037,7 @@ namespace Column_Design
                 givenDesignDataToExcel.nonConfiningSpacingOne = Math.Floor(nonConfiningSpacingOne);
                 givenDesignDataToExcel.nonConfiningSpacingTwo = Math.Floor(nonConfiningSpacingTwo);
                 givenDesignDataToExcel.minNonConfiningAsvRequired = Math.Ceiling(minAsvRequired);
-                givenDesignDataToExcel.nonConfiningSpacingProvided = Math.Floor(double.Parse(this.nonConfiningSpacing.Text));
+                givenDesignDataToExcel.nonConfiningSpacingProvided = Math.Floor(double.Parse(nonConfiningSpacing.Text));
                 givenDesignDataToExcel.clearCover = Math.Round(cover, 0);
                 givenDesignDataToExcel.confinfingSpacingOne = Math.Floor(spacingOne);
                 givenDesignDataToExcel.confinfingSpacingTwo = Math.Floor(spacingTwo);
@@ -2572,19 +3051,92 @@ namespace Column_Design
                 givenDesignDataToExcel.minAshRequired = Math.Ceiling(AshRequired);
                 givenDesignDataToExcel.AshProvided = Math.Floor(0.25 * Math.PI * linkDia * linkDia);
                 givenDesignDataToExcel.confiningSpacingProvided = Math.Ceiling(double.Parse(this.confiningSpacing.Text));
-                this.designDataToExcel.Add(givenDesignDataToExcel);
-                section.ReinforcementGroups.Clear();
+                designDataToExcel.Add(givenDesignDataToExcel);
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void columnsToShow_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(!this.storiesToDesign.Items.Contains(this.storyName.Text))
+            var checkedColumns = this.columnsToShow.CheckedIndices;
+            foreach(var checkedColumn in checkedColumns)
             {
-                this.storiesToDesign.Items.Add(this.storyName.Text);
+                ResultsTable.Columns[(int)checkedColumn].Visible = true;
+            }
+            for(int i=0; i< this.columnsToShow.Items.Count; i++)
+            {
+                if(!checkedColumns.Contains(i))
+                {
+                    ResultsTable.Columns[i].Visible = false;
+                }
+            }
+        }
+
+        private void ExtractETABSTables_Click(object sender, EventArgs e)
+        {
+            Excel.Application excelApplication = null;
+            Excel.Workbook excelWorkBook = null;
+
+            excelApplication = new Excel.Application();
+            excelApplication.Visible = true;
+            string @excelPath = this.designInput.Text;
+            excelWorkBook = excelApplication.Workbooks.Open(excelPath);
+
+            ExtractEtabsForceTables(excelWorkBook);
+
+            excelWorkBook.Close();
+            excelApplication.Quit();
+            excelApplication = null;
+            excelWorkBook = null;
+        }
+
+        private void BrowseInputFIle_Click(object sender, EventArgs e)
+        {
+            var file_browse_dialog = new OpenFileDialog();
+            file_browse_dialog.Title = "Browse Input File";
+            var dialog_result = file_browse_dialog.ShowDialog();
+            if (dialog_result == DialogResult.OK)
+            {
+                designInput.ForeColor = Color.Black;
+                designInput.Text = file_browse_dialog.FileName;
+            }
+        }
+
+        private void designInput_Enter(object sender, EventArgs e)
+        {
+            if (designInput.Text == "Enter Input File Path...")
+            {
+                designInput.ForeColor = Color.Black;
+                designInput.Text = "";
+            }
+        }
+
+        private void designInput_Leave(object sender, EventArgs e)
+        {
+            if (designInput.Text.Length == 0)
+            {
+                designInput.ForeColor = Color.Gray;
+                designInput.Text = "Enter Input File Path...";
+            }
+        }
+
+        private void UpdateDesignRows_Click(object sender, EventArgs e)
+        {
+            if (DesignStories.CheckedItems.Contains("All stories"))
+            {
+                for (int i = 0; i < DesignStories.Items.Count; i++)
+                {
+                    DesignStories.SetItemChecked(i, true);
+                }
+            }
+            for (int design_row_index = 0; design_row_index < ResultsTable.Rows.Count - 1; design_row_index++)
+            {
+                if (ResultsTable.Rows[design_row_index].Cells[ResultTableColumnIndex.column_label].Value.ToString() == columnsToDesign.Text)
+                {
+                    ResultsTable.Rows.Remove(ResultsTable.Rows[design_row_index]);
+                    design_row_index--;
+                }
             }
 
-            this.ResultsTable.Rows.Clear();
             double maxRebarPtEtabs = 0;
             double fckValue = 0;
             double depthValue = 0;
@@ -2602,16 +3154,20 @@ namespace Column_Design
             double vAlongYTop = 0;
             double vAlongXBottom = 0;
             double vAlongYBottom = 0;
+            string governing_combo = "";
 
-            foreach (var thisColumnInputData in columnInputData.Where(
-                _ => _.columnLabel == this.columnsToDesign.SelectedItem.ToString()).ToList())
+            var thisColumnInputDatas = columnInputData.Where(
+                _ => _.columnLabel == columnsToDesign.Text).ToList();
+            thisColumnInputDatas.Reverse();
+
+            foreach (var thisColumnInputData in thisColumnInputDatas)
             {
                 if (maxRebarPtEtabs < thisColumnInputData.rebarPtEtabs)
                 {
                     maxRebarPtEtabs = thisColumnInputData.rebarPtEtabs;
                 }
 
-                if (this.storiesToDesign.Items.Contains("All stories") || this.storiesToDesign.Items.Contains(thisColumnInputData.story))
+                if (DesignStories.CheckedItems.Contains(thisColumnInputData.story))
                 {
                     fckValue = thisColumnInputData.fck;
                     depthValue = thisColumnInputData.depth;
@@ -2623,30 +3179,13 @@ namespace Column_Design
                     _.story == thisColumnInputData.story)).ToList();
                     double maxVAlongXForce = matchingForceData.Count > 0 ? matchingForceData.Max(_ => _.VAlongX) : 0;
                     double maxVAlongYForce = matchingForceData.Count > 0 ? matchingForceData.Max(_ => _.VAlongY) : 0;
+                    List<ColumnShearData> matchingShearData = columnShearData.Where(_ =>
+                    (_.columnLabel == thisColumnInputData.columnLabel &&
+                    _.story == thisColumnInputData.story &&
+                    _.location == thisColumnInputData.location)).ToList();
 
-                    if (thisColumnInputData.location == "Top")
+                    if (thisColumnInputData.location == "Bottom")
                     {
-                        List<ColumnShearData> matchingShearData = columnShearData.Where(_ =>
-                        (_.columnLabel == thisColumnInputData.columnLabel &&
-                        _.story == thisColumnInputData.story &&
-                        _.location == thisColumnInputData.location)).ToList();
-
-                        pTopValue = thisColumnInputData.P;
-                        mMajorTopValue = thisColumnInputData.MMajor;
-                        mMinorTopValue = thisColumnInputData.MMinor;
-                        rebarPtEtabsValue = thisColumnInputData.rebarPtEtabs;
-                        vAlongXTop = matchingShearData.Count > 0 ?
-                            Math.Max(matchingShearData[0].maxVAlongX, maxVAlongXForce) : maxVAlongXForce;
-                        vAlongYTop = matchingShearData.Count > 0 ?
-                            Math.Max(matchingShearData[0].maxVAlongY, maxVAlongYForce): maxVAlongYForce;
-                    }
-                    else if (thisColumnInputData.location == "Bottom")
-                    {
-                        List<ColumnShearData> matchingShearData = columnShearData.Where(_ =>
-                        (_.columnLabel == thisColumnInputData.columnLabel &&
-                        _.story == thisColumnInputData.story &&
-                        _.location == thisColumnInputData.location)).ToList();
-
                         pBottomValue = thisColumnInputData.P;
                         mMajorBottomValue = thisColumnInputData.MMajor;
                         mMinorBottomValue = thisColumnInputData.MMinor;
@@ -2655,27 +3194,42 @@ namespace Column_Design
                             Math.Max(matchingShearData[0].maxVAlongX, maxVAlongXForce) : maxVAlongXForce;
                         vAlongYBottom = matchingShearData.Count > 0 ?
                             Math.Max(matchingShearData[0].maxVAlongY, maxVAlongYForce) : maxVAlongYForce;
+                        governing_combo = thisColumnInputData.governingCombo;
+                    }
+                    else if (thisColumnInputData.location == "Top")
+                    {
+                        pTopValue = thisColumnInputData.P;
+                        mMajorTopValue = thisColumnInputData.MMajor;
+                        mMinorTopValue = thisColumnInputData.MMinor;
+                        rebarPtEtabsValue = thisColumnInputData.rebarPtEtabs;
+                        vAlongXTop = matchingShearData.Count > 0 ?
+                            Math.Max(matchingShearData[0].maxVAlongX, maxVAlongXForce) : maxVAlongXForce;
+                        vAlongYTop = matchingShearData.Count > 0 ?
+                            Math.Max(matchingShearData[0].maxVAlongY, maxVAlongYForce) : maxVAlongYForce;
 
                         if (rebarPtEtabsBottomValue < rebarPtEtabsValue)
                         {
-                            this.ResultsTable.Rows.Add(
+                            ResultsTable.Rows.Add(
+                                columnsToDesign.Text,
                                 thisColumnInputData.story,
+                                thisColumnInputData.story_elevation,
                                 "Top",
                                 Math.Round(thisColumnInputData.fck, 0),
                                 Math.Round(thisColumnInputData.depth, 0),
                                 Math.Round(thisColumnInputData.width, 0),
                                 Math.Round(thisColumnInputData.length, 0),
                                 thisColumnInputData.governingCombo,
-                                Math.Round(pTopValue, 2),
-                                 Math.Round(mMajorTopValue, 2),
-                                 Math.Round(mMinorTopValue, 2),
+                                Math.Round(pTopValue, 0),
+                                Math.Round(mMajorTopValue, 0),
+                                Math.Round(mMinorTopValue, 0),
+                                0.0,
+                                0.0,
+                                Math.Round(rebarPtEtabsValue, 2),
                                 0.0,
                                 0.0,
                                 "",
-                                0.0,
-                                Math.Round(rebarPtEtabsValue, 2),
-                                Math.Max(Math.Round(vAlongYTop,2), Math.Round(vAlongYBottom,2)),
-                                Math.Max(Math.Round(vAlongXTop, 2), Math.Round(vAlongXBottom, 2)),
+                                Math.Max(Math.Round(vAlongYTop, 0), Math.Round(vAlongYBottom, 0)),
+                                Math.Max(Math.Round(vAlongXTop, 0), Math.Round(vAlongXBottom, 0)),
                                 0.0,
                                 0.0,
                                 0.0,
@@ -2687,24 +3241,27 @@ namespace Column_Design
                         }
                         else
                         {
-                            this.ResultsTable.Rows.Add(
+                            ResultsTable.Rows.Add(
+                                columnsToDesign.Text,
                                 thisColumnInputData.story,
+                                thisColumnInputData.story_elevation,
                                 "Bottom",
                                 Math.Round(thisColumnInputData.fck, 0),
                                 Math.Round(thisColumnInputData.depth, 0),
                                 Math.Round(thisColumnInputData.width, 0),
                                 Math.Round(thisColumnInputData.length, 0),
-                                thisColumnInputData.governingCombo,
-                                Math.Round(pBottomValue, 2),
-                                Math.Round(mMajorBottomValue, 2),
-                                Math.Round(mMinorBottomValue, 2),
+                                governing_combo,
+                                Math.Round(pBottomValue, 0),
+                                Math.Round(mMajorBottomValue, 0),
+                                Math.Round(mMinorBottomValue, 0),
+                                0.0,
+                                0.0,
+                                Math.Round(rebarPtEtabsBottomValue, 2),
                                 0.0,
                                 0.0,
                                 "",
-                                0.0,
-                                Math.Round(rebarPtEtabsBottomValue, 2),
-                                Math.Max(Math.Round(vAlongYTop, 2), Math.Round(vAlongYBottom, 2)),
-                                Math.Max(Math.Round(vAlongXTop, 2), Math.Round(vAlongXBottom, 2)),
+                                Math.Max(Math.Round(vAlongYTop, 0), Math.Round(vAlongYBottom, 0)),
+                                Math.Max(Math.Round(vAlongXTop, 0), Math.Round(vAlongXBottom, 0)),
                                 0.0,
                                 0.0,
                                 0.0,
@@ -2722,59 +3279,24 @@ namespace Column_Design
             this.maxEtabsRebarPt.Text = maxRebarPtEtabs.ToString();
         }
 
-        private void columnsToShow_SelectedIndexChanged(object sender, EventArgs e)
+        private void rebarCover_Leave(object sender, EventArgs e)
         {
-            var checkedColumns = this.columnsToShow.CheckedIndices;
-            foreach(var checkedColumn in checkedColumns)
+            if (!double.TryParse(rebarCover.Text, out _) || double.Parse(rebarCover.Text) <= 0)
             {
-                this.ResultsTable.Columns[(int)checkedColumn].Visible = true;
+                errorProvider1.SetError(rebarCover, "Cover must be a positive number");
+                rebarCover.Text = (40).ToString();
+                return;
             }
-            for(int i=0; i< this.columnsToShow.Items.Count; i++)
+            else
             {
-                if(!checkedColumns.Contains(i))
-                {
-                    this.ResultsTable.Columns[i].Visible = false;
-                }
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if(this.storiesToDesign.SelectedItem != null)
-            {
-                if ((string)this.storiesToDesign.SelectedItem == "All stories")
-                {
-                    ResultsTable.Rows.Clear();
-                    this.storiesToDesign.Items.Clear();
-                    this.storiesToDesign.Text = "";
-                    return;
-                }
-
-                for (int i = 0; i < ResultsTable.Rows.Count; i++)
-                {
-                    if ((string)ResultsTable.Rows[i].Cells[0].Value == (string)this.storiesToDesign.SelectedItem)
-                    {
-                        ResultsTable.Rows.RemoveAt(i);
-                        break;
-                    }
-                }
-
-                this.storiesToDesign.Items.Remove(this.storiesToDesign.Items[this.storiesToDesign.SelectedIndex]);
-                this.storiesToDesign.Text = "";
+                errorProvider1.SetError(rebarCover, "");
+                errorProvider1.Clear();
             }
         }
 
-        private void ExtractETABSTables_Click(object sender, EventArgs e)
+        private void ClearDesignTable_Click(object sender, EventArgs e)
         {
-            Excel.Application excelApplication = null;
-            Excel.Workbook excelWorkBook = null;
-
-            excelApplication = new Excel.Application();
-            excelApplication.Visible = true;
-            string @excelPath = this.designInput.Text;
-            excelWorkBook = excelApplication.Workbooks.Open(excelPath);
-
-            ExtractEtabsForceTables(excelWorkBook);
+            ResultsTable.Rows.Clear();
         }
     }
 }

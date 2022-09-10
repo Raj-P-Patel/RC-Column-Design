@@ -86,10 +86,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AdSec_API, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\AdSec.1.0.2.3\lib\netstandard2.0\AdSec_API.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\.nuget\packages\adsec\latest\AdSec_API.dll</HintPath>
     </Reference>
     <Reference Include="AdSec_IO, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\AdSec.1.0.2.3\lib\netstandard2.0\AdSec_IO.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\.nuget\packages\adsec\latest\AdSec_IO.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv1">
       <HintPath>..\..\..\..\..\..\..\..\Program Files\Computers and Structures\ETABS 19\ETABSv1.dll</HintPath>
@@ -99,8 +101,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\..\..\..\..\..\Program Files\Microsoft Office\root\vfs\ProgramFilesX86\Microsoft Office\Office16\DCF\Microsoft.Office.Interop.Excel.dll</HintPath>
     </Reference>
-    <Reference Include="OasysUnits, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AdSec.1.0.2.3\lib\netstandard2.0\OasysUnits.dll</HintPath>
+    <Reference Include="OasysUnits, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\.nuget\packages\adsec\latest\OasysUnits.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
@@ -171,11 +174,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\AdSec.1.0.2.3\build\AdSec.targets" Condition="Exists('..\packages\AdSec.1.0.2.3\build\AdSec.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\AdSec.1.0.2.3\build\AdSec.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AdSec.1.0.2.3\build\AdSec.targets'))" />
-  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
